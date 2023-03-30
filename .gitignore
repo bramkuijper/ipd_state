@@ -1,0 +1,16 @@
+*~
+*.gif
+*.jpg
+*.svg
+*.swp
+*.png
+*.pdf
+iter_*
+*.dSYM*
+*.exe
+sim_*
+graph_sim_*
+graph_iter_*
+*.csv
+x*
+*__pycache__*
