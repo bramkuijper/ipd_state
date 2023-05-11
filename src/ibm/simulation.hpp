@@ -5,6 +5,7 @@
 #include <random>
 #include <iostream>
 #include <fstream>
+#include "individual.hpp"
 #include "parameters.hpp"
 
 class Simulation
@@ -34,9 +35,35 @@ class Simulation
 
         // uniform distribution to compare against probabilities
         std::uniform_real_distribution<double> uniform;
+        // uniform dist between + / -
+        std::uniform_real_distribution<double> uniform_pm;
+
+        std::vector<Individual> singles;
+        std::vector<Individual> offspring;
+        std::vector<Individual> paired;
+
+        int number_mortalities = 0;
+
+        void pair_up();
+        void interact();
+        void reproduce();
+        double payoff_pd(double const x, double const xprime);
+
+        void dismiss_partner();
+
+        int calculate_mortalities();
+
+        void mortality();
+
+        void write_data();
+        void write_data_headers();
+        void write_parameters();
 
     public:
         Simulation(Parameters const &params);
+
+        void run();
+
 };
 
 #endif

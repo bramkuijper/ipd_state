@@ -5,7 +5,9 @@
 int main(int argc, char **argv)
 {
     Parameters params;
-    params.w = std::stod(argv[1]);
+    params.max_time = std::stoi(argv[1]);
 
     Simulation sim(params);
+
+    sim.run();
 }

@@ -1,12 +1,13 @@
 #ifndef _PARAMETERS_HPP_
 #define _PARAMETERS_HPP_
 
+#include <string>
+
 class Parameters
 {
     public:
         // probability that the 
         // interaction will be continued
-        double w = 0.5;
 
         double mu_x = 0.01;
         double mu_y = 0.01;
@@ -14,6 +15,22 @@ class Parameters
         double mu_yp = 0.01;
 
         double sdmu = 0.02;
+
+        unsigned int N = 1000;
+        long int max_time = 100;
+
+        double init_x = 0.5;
+        double init_y = 0.0;
+
+        double startup_cost = 0.01;
+
+        double mortality_prob = 0.1;
+
+        double dismiss_error = 0.01;
+
+        int data_interval = 1;
+
+        std::string file_base_name = "sim_ipd";
 };
 
 #endif
