@@ -173,13 +173,26 @@ void Simulation::dismiss_partner()
 
     std::vector <Individual> new_old_pairs;
 
-    assert(!singles.empty());
+    if (singles.empty())
+    {
+        return;
+    }
 
+//    int i = 0;
+
+    //  loop through newly formed pairs
     for (std::vector<Individual>::iterator pair_iter = singles.begin();
             pair_iter != singles.end();
 
         )
     {
+//        std::cout << time_step << " " << "pair " << i << " " << singles.size() << " " << std::distance(pair_iter, singles.end()) << " " << std::endl;
+//        ++i;
+        if (std::distance(pair_iter, singles.end()) <= 1)
+        {
+            break;
+        }
+
         auto pair_iter2 = std::next(pair_iter,1);
 
         x1 = pair_iter->x;
@@ -204,6 +217,10 @@ void Simulation::dismiss_partner()
         }
         else
         {
+            if (std::distance(pair_iter, singles.end()) <= 2)
+            {
+                break;
+            }
             // advance the iterator in twos (coz pairs)
             pair_iter = std::next(pair_iter,2);
         }
@@ -216,39 +233,76 @@ void Simulation::mortality()
     // aux variab
     double prob_single;
 
+    // have offspring replace existing breeders
     for (int offspring_idx = 0; offspring_idx < offspring.size(); ++offspring_idx)
     {
         prob_single = (double) singles.size() / (singles.size() + paired.size());
 
+        if (prob_single > 1.0)
+        {
+            std::cout << "nou tell me: " << prob_single << std::endl;
+        }
+
+        assert(prob_single >= 0.0);
+        assert(prob_single <= 1.0);
+
         if (uniform(rng_r) < prob_single)
         {
+            assert(singles.size() > 0);
             std::uniform_int_distribution <int> single_sampler(0,singles.size() - 1);
 
             singles.erase(singles.begin() + single_sampler(rng_r));
         }
         else
         {
+            assert(paired.size() >= 2);
+            assert(paired.size() % 2 == 0);
+
+            // death of a pair member
             std::uniform_int_distribution <int> paired_sampler(0,paired.size() - 1);
 
             int random_paired_idx = paired_sampler(rng_r);
             
             // get index of partner
-            int random_paired_partner_idx = 
-                random_paired_idx % 2 == 0 ? 
-                    random_paired_idx + 1
-                    :
-                    random_paired_idx - 1;
+            // if even, i.e., 0, 2, 4, etc, we have the first member of a pair
+            // hence the partner index is the focal + 1
+            // other the partner's index is the focal's - 1
+            if (random_paired_idx % 2 == 0)
+            {
+                assert(random_paired_idx + 1 > 0);
+                assert(random_paired_idx + 1 < paired.size());
 
-            assert(random_paired_partner_idx >= 0);
+                // partner is in position random_paired_idx + 1
+                singles.push_back(paired[random_paired_idx + 1]);
 
-            assert(random_paired_partner_idx < paired.size());
+                // remove focal because of mortality
+                paired.erase(paired.begin() + random_paired_idx);
 
-            // move remaining individual from this pair to stack of singles
-            singles.push_back(paired[random_paired_idx + 1]);
-            
-            paired.erase(paired.begin() + random_paired_idx);
+                // remove focal's partner
+                paired.erase(paired.begin() + random_paired_idx);
+            }
+            else 
+            {
+                assert(random_paired_idx - 1 >= 0);
+
+                assert(random_paired_idx - 1 < paired.size());
+
+                // partner is in position random_paired_idx + 1
+                singles.push_back(paired[random_paired_idx - 1]);
+
+                // remove focal because of mortality
+                paired.erase(paired.begin() + random_paired_idx - 1);
+
+                // remove focal's partner
+                paired.erase(paired.begin() + random_paired_idx - 1);
+
+            }
         }
     }
+
+    // add offspring to the stack of singles
+    singles.insert(singles.end(), offspring.begin(), offspring.end());
+
 } // end Simulation::mortality()
   
 void Simulation::write_data()
@@ -257,6 +311,11 @@ void Simulation::write_data()
     double ss_x = 0.0;
     double mean_y = 0.0;
     double ss_y = 0.0;
+
+    double mean_xp = 0.0;
+    double ss_xp = 0.0;
+    double mean_yp = 0.0;
+    double ss_yp = 0.0;
 
     double x,y;
 
@@ -269,9 +328,17 @@ void Simulation::write_data()
         mean_x += x;
         ss_x += x*x;
 
+        x = single_iter->xp;
+        mean_xp += x;
+        ss_xp += x*x;
+
         y = single_iter->y;
         mean_y += y;
         ss_y += y*y;
+        
+        y = single_iter->yp;
+        mean_yp += y;
+        ss_yp += y*y;
     }
 
     for (std::vector<Individual>::iterator paired_iter = paired.begin();
@@ -282,9 +349,17 @@ void Simulation::write_data()
         mean_x += x;
         ss_x += x*x;
 
+        x = paired_iter->xp;
+        mean_xp += x;
+        ss_xp += x*x;
+
         y = paired_iter->y;
         mean_y += y;
         ss_y += y*y;
+        
+        y = paired_iter->yp;
+        mean_yp += y;
+        ss_yp += y*y;
     }
 
     int n = singles.size() + paired.size();
@@ -292,22 +367,33 @@ void Simulation::write_data()
     mean_x /= n;
     double var_x = ss_x / n - mean_x * mean_x;
 
+    mean_xp /= n;
+    double var_xp = ss_xp / n - mean_xp * mean_xp;
+
     mean_y /= n;
     double var_y = ss_y / n - mean_y * mean_y;
+    
+    mean_yp /= n;
+    double var_yp = ss_yp / n - mean_yp * mean_yp;
 
     data_file << time_step << ";"
         << mean_x << ";"
         << mean_y << ";"
+        << mean_xp << ";"
+        << mean_yp << ";"
         << var_x << ";"
         << var_y << ";"
+        << var_xp << ";"
+        << var_yp << ";"
         << paired.size() << ";"
         << singles.size() << ";"
+        << number_mortalities << ";"
         << std::endl;
 } // end write_data();
 
 void Simulation::write_data_headers()
 {
-    data_file << "time;x;y;var_x;var_y;npaired;nsingle;" << std::endl;
+    data_file << "time;x;y;xp;yp;var_x;var_y;var_xp;var_yp;npaired;nsingle;nmort;" << std::endl;
 }
 
 void Simulation::write_parameters()

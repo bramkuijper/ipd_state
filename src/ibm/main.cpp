@@ -6,6 +6,10 @@ int main(int argc, char **argv)
 {
     Parameters params;
     params.max_time = std::stoi(argv[1]);
+    params.init_x = std::stod(argv[2]);
+    params.init_y = std::stod(argv[3]);
+    params.mu_y = std::stod(argv[4]);
+    params.file_base_name = argv[5];
 
     Simulation sim(params);
 
