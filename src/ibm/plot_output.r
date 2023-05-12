@@ -39,10 +39,26 @@ plots_json <- paste0('[
         "xvar" : "',xvar,'",
         "yvar" : ["var_x","var_y"]
     },
+    {"xvar" : "',xvar,'",
+    "yvar" : ["xp","yp"]
+    },
+    {
+        "xvar" : "',xvar,'",
+        "yvar" : ["var_xp","var_yp"]
+    },
     {
         "xvar" : "',xvar,'",
         "yvar" : ["npaired","nsingle","nmort"]
-    }]'
+    },
+    {
+        "xvar" : "',xvar,'",
+        "yvar" : ["mean_resources_single","mean_resources_paired","mean_resources"]
+    },
+    {
+        "xvar" : "',xvar,'",
+        "yvar" : ["var_resources_single","var_resources_paired","var_resources"]
+    }
+    ]'
 )
 
 #file.name <- "sim_asr_20230509_101417900895_0"
@@ -138,13 +154,20 @@ for (plot_struct_idx in 1:plot.structure.l)
     plot.list.idx <- plot.list.idx + 1
 }
 
+plot.title <- ""
 
-wrap_plots(plot.list,ncol=1) + plot_annotation(
-        title=paste0(
+if (exists("params")  && "startup_cost" %in% names(params))
+{
+    plot.title <- paste0(
                 "startup cost: ",params["startup_cost"],
                 ", mort: ",params["mortality_prob"],
                 ", dismiss error: ",params["dismiss_error"]
-                ))
+                )
+}
+
+
+wrap_plots(plot.list,ncol=1) + plot_annotation(
+        title=plot.title)
 
 file.name <- paste0("graph_",basename(file.name),".pdf")
 

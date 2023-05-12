@@ -5,6 +5,7 @@
 Individual::Individual(double const init_x, double const init_y) :
     x{init_x}
     ,y{init_y}
+    ,resources{0.0}
 {}
 
 Individual::Individual(Individual const &other) :

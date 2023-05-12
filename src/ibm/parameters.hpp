@@ -28,7 +28,9 @@ class Parameters
 
         double dismiss_error = 0.01;
 
-        double resource_variation = 5;
+        double resource_variation = 1;
+
+        double cost_of_reproduction = 2;
 
         int data_interval = 1;
 

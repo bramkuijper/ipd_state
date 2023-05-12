@@ -140,8 +140,10 @@ void Simulation::reproduce()
     for (int offspring_idx = 0; 
             offspring_idx < number_mortalities; ++offspring_idx)
     {
+
         // sample parent from resource distribution
         parent_idx = resource_distribution(rng_r);
+        
 
         // TODO potential for bugs here
         if (parent_idx >= singles.size())
@@ -155,6 +157,8 @@ void Simulation::reproduce()
                     Individual(paired[parent_idx]
                         ,params
                         ,rng_r));
+        
+            paired[parent_idx].resources -= params.cost_of_reproduction;
         }
         else
         {
@@ -165,6 +169,8 @@ void Simulation::reproduce()
                     Individual(singles[parent_idx]
                         ,params
                         ,rng_r));
+
+            singles[parent_idx].resources -= params.cost_of_reproduction;
         }
     } // end for offspring idx
 } // end Simulation::reproduce()
@@ -401,13 +407,13 @@ void Simulation::write_data()
     double var_yp = ss_yp / n - mean_yp * mean_yp;
 
     mean_resources /= n;
-    double var_resources = ss_resources /= n - mean_resources * mean_resources;
+    double var_resources = ss_resources / n - mean_resources * mean_resources;
     
     mean_resources_single /= singles.size();
-    double var_resources_single = ss_resources_single /= singles.size() - mean_resources_single * mean_resources_single;
+    double var_resources_single = ss_resources_single / singles.size() - mean_resources_single * mean_resources_single;
     
     mean_resources_paired /= paired.size();
-    double var_resources_paired = ss_resources_paired /= paired.size() - mean_resources_paired * mean_resources_paired;
+    double var_resources_paired = ss_resources_paired / paired.size() - mean_resources_paired * mean_resources_paired;
 
     data_file << time_step << ";"
         << mean_x << ";"
@@ -455,6 +461,7 @@ void Simulation::write_parameters()
         << "mu_yp;" << params.mu_yp << std::endl
         << "sdmu;" << params.sdmu << std::endl
         << "resource_variation;" << params.resource_variation << std::endl
+        << "cost_of_reproduction;" << params.cost_of_reproduction << std::endl
         << "N;" << params.N << std::endl
         << "init_x;" << params.init_x << std::endl
         << "init_y;" << params.init_y << std::endl
