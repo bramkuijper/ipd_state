@@ -47,7 +47,9 @@ Individual::Individual(Individual const &parent
     {
         yp += mutational_effect(rng_r);
     }
-    
+
+    // give some initial bit of resources
+    resources = params.resource_variation * uniform(rng_r);
 }
 
 void Individual::operator=(Individual const &other)
@@ -56,4 +58,6 @@ void Individual::operator=(Individual const &other)
     xp = other.xp;
     y = other.y;
     yp = other.yp;
+
+    resources = other.resources;
 }

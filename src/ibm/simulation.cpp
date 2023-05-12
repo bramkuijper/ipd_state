@@ -76,8 +76,8 @@ void Simulation::interact()
     for (int new_pair_idx = 0; 
             new_pair_idx < singles.size(); new_pair_idx += 2)
     {
-        x1 = singles[new_pair_idx].x;
-        x2 = singles[new_pair_idx + 1].x;
+        x1 = singles[new_pair_idx].x + singles[new_pair_idx].xp * singles[new_pair_idx].resources;
+        x2 = singles[new_pair_idx + 1].x + singles[new_pair_idx + 1].xp * singles[new_pair_idx + 1].resources;
 
         singles[new_pair_idx].resources += 
             payoff_pd(x1,x2) - params.startup_cost;
@@ -89,8 +89,11 @@ void Simulation::interact()
 
     for (int pair_idx = 0; pair_idx < paired.size(); pair_idx += 2)
     {
-        x1 = paired[pair_idx].x;
-        x2 = paired[pair_idx + 1].x;
+        x1 = paired[pair_idx].x + 
+            paired[pair_idx].xp * paired[pair_idx].resources;
+
+        x2 = paired[pair_idx + 1].x + 
+            paired[pair_idx + 1].xp * paired[pair_idx + 1].resources;
         
         paired[pair_idx].resources += payoff_pd(x1,x2);
         paired[pair_idx + 1].resources += payoff_pd(x2,x1);
@@ -195,11 +198,11 @@ void Simulation::dismiss_partner()
 
         auto pair_iter2 = std::next(pair_iter,1);
 
-        x1 = pair_iter->x;
-        x2 = pair_iter2->x;
+        x1 = pair_iter->x + pair_iter->xp * pair_iter->resources;
+        x2 = pair_iter2->x + pair_iter2->xp * pair_iter2->resources;
 
-        y1 = pair_iter->y;
-        y2 = pair_iter2->y;
+        y1 = pair_iter->y + pair_iter->yp * pair_iter->resources;
+        y2 = pair_iter2->y + pair_iter2->yp * pair_iter2->resources;
 
         // see whether individuals will remain in pair
         if (y1 <= x2 + params.dismiss_error * uniform_pm(rng_r)
@@ -319,6 +322,13 @@ void Simulation::write_data()
 
     double x,y;
 
+    double mean_resources_single = 0.0;
+    double mean_resources_paired = 0.0;
+    double mean_resources = 0.0;
+    double ss_resources_single = 0.0;
+    double ss_resources_paired = 0.0;
+    double ss_resources = 0.0;
+
     // calculate stats
     for (std::vector<Individual>::iterator single_iter = singles.begin();
             single_iter != singles.end();
@@ -339,6 +349,13 @@ void Simulation::write_data()
         y = single_iter->yp;
         mean_yp += y;
         ss_yp += y*y;
+
+        x = single_iter->resources;
+        mean_resources_single += x;
+        ss_resources_single += x*x;
+
+        mean_resources += x;
+        ss_resources += x*x;
     }
 
     for (std::vector<Individual>::iterator paired_iter = paired.begin();
@@ -360,6 +377,13 @@ void Simulation::write_data()
         y = paired_iter->yp;
         mean_yp += y;
         ss_yp += y*y;
+        
+        x = paired_iter->resources;
+        mean_resources_paired += x;
+        ss_resources_paired += x*x;
+
+        mean_resources += x;
+        ss_resources += x*x;
     }
 
     int n = singles.size() + paired.size();
@@ -376,6 +400,15 @@ void Simulation::write_data()
     mean_yp /= n;
     double var_yp = ss_yp / n - mean_yp * mean_yp;
 
+    mean_resources /= n;
+    double var_resources = ss_resources /= n - mean_resources * mean_resources;
+    
+    mean_resources_single /= singles.size();
+    double var_resources_single = ss_resources_single /= singles.size() - mean_resources_single * mean_resources_single;
+    
+    mean_resources_paired /= paired.size();
+    double var_resources_paired = ss_resources_paired /= paired.size() - mean_resources_paired * mean_resources_paired;
+
     data_file << time_step << ";"
         << mean_x << ";"
         << mean_y << ";"
@@ -385,17 +418,33 @@ void Simulation::write_data()
         << var_y << ";"
         << var_xp << ";"
         << var_yp << ";"
+        << mean_resources << ";"
+        << var_resources << ";"
+        << mean_resources_single << ";"
+        << var_resources_single << ";"
+        << mean_resources_paired << ";"
+        << var_resources_paired << ";"
         << paired.size() << ";"
         << singles.size() << ";"
         << number_mortalities << ";"
         << std::endl;
+
 } // end write_data();
 
 void Simulation::write_data_headers()
 {
-    data_file << "time;x;y;xp;yp;var_x;var_y;var_xp;var_yp;npaired;nsingle;nmort;" << std::endl;
-}
-
+    data_file << 
+        "time;x;y;xp;yp;var_x;var_y;var_xp;var_yp;"
+        << "mean_resources;" 
+        << "var_resources;" 
+        << "mean_resources_single;" 
+        << "var_resources_single;" 
+        << "mean_resources_paired;" 
+        << "var_resources_paired;" 
+        << "npaired;nsingle;nmort;" << std::endl;
+} // end write_data_headers()
+    
+    
 void Simulation::write_parameters()
 {
     data_file << std::endl
@@ -405,6 +454,7 @@ void Simulation::write_parameters()
         << "mu_xp;" << params.mu_xp << std::endl
         << "mu_yp;" << params.mu_yp << std::endl
         << "sdmu;" << params.sdmu << std::endl
+        << "resource_variation;" << params.resource_variation << std::endl
         << "N;" << params.N << std::endl
         << "init_x;" << params.init_x << std::endl
         << "init_y;" << params.init_y << std::endl

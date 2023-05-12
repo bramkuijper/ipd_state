@@ -9,7 +9,9 @@ int main(int argc, char **argv)
     params.init_x = std::stod(argv[2]);
     params.init_y = std::stod(argv[3]);
     params.mu_y = std::stod(argv[4]);
-    params.file_base_name = argv[5];
+    params.mu_xp = std::stod(argv[5]);
+    params.mu_yp = std::stod(argv[6]);
+    params.file_base_name = argv[7];
 
     Simulation sim(params);
 

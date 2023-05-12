@@ -28,6 +28,8 @@ class Parameters
 
         double dismiss_error = 0.01;
 
+        double resource_variation = 5;
+
         int data_interval = 1;
 
         std::string file_base_name = "data_ipd";
