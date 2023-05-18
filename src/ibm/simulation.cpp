@@ -254,7 +254,7 @@ void Simulation::dismiss_partner()
             pair_iter = std::next(pair_iter,2);
         }
     }
-}
+} // end void Simulation::dismiss_partner
 
 // mortality events as many as there are offspring
 void Simulation::mortality()
