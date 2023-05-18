@@ -82,9 +82,18 @@ void Simulation::interact()
         singles[new_pair_idx].resources += 
             payoff_pd(x1,x2) - params.startup_cost;
 
+        if (singles[new_pair_idx].resources > params.max_resources)
+        {
+            singles[new_pair_idx].resources = params.max_resources;
+        }
+
         singles[new_pair_idx + 1].resources += 
             payoff_pd(x2,x1) - params.startup_cost;
         
+        if (singles[new_pair_idx + 1].resources > params.max_resources)
+        {
+            singles[new_pair_idx + 1].resources = params.max_resources;
+        }
     }
 
     for (int pair_idx = 0; pair_idx < paired.size(); pair_idx += 2)
@@ -96,7 +105,18 @@ void Simulation::interact()
             paired[pair_idx + 1].xp * paired[pair_idx + 1].resources;
         
         paired[pair_idx].resources += payoff_pd(x1,x2);
+
+        if (paired[pair_idx].resources > params.max_resources)
+        {
+            paired[pair_idx].resources = params.max_resources;
+        }
+
         paired[pair_idx + 1].resources += payoff_pd(x2,x1);
+        
+        if (paired[pair_idx + 1].resources > params.max_resources)
+        {
+            paired[pair_idx + 1].resources = params.max_resources;
+        }
     }
 }// Simulation::interact
 

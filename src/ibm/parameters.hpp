@@ -35,6 +35,8 @@ class Parameters
         int data_interval = 1;
 
         std::string file_base_name = "data_ipd";
+
+        int max_resources = 100;
 };
 
 #endif
