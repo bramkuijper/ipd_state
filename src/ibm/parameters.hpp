@@ -36,7 +36,7 @@ class Parameters
 
         std::string file_base_name = "data_ipd";
 
-        int max_resources = 100;
+        double max_resources = 100.0;
 };
 
 #endif

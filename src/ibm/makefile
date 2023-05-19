@@ -5,7 +5,7 @@ EXE=ipd_simulation.exe
 CPP=simulation.cpp main.cpp individual.cpp
 HPP=simulation.hpp parameters.hpp individual.hpp
 CXX=g++
-CXXFLAGS=-Wall -ggdb -std=c++14
+CXXFLAGS=-Wall -ggdb -std=c++20
 
 
 $(EXE) : $(CPP) $(HPP)

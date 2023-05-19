@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <random>
+#include <cmath>
 #include <algorithm>
 #include <iostream>
 #include <fstream>
@@ -15,6 +16,7 @@ Simulation::Simulation(Parameters const &params) :
     data_file{params.file_base_name.c_str()}
     ,rd{} // initialize random device, see *.h file
     ,seed{rd()} // initialize seed
+//    ,seed{3027952275} // initialize seed
     ,rng_r{seed} // initialize the random number generator
     ,uniform{0.0,1.0} // initialize the uniform distribution
     ,uniform_pm{-1.0,1.0} // initialize the uniform distribution +1 - 1
@@ -25,6 +27,7 @@ Simulation::Simulation(Parameters const &params) :
 // run the actual simulation over max_time time steps
 void Simulation::run()
 {
+    write_parameters();
     write_data_headers();
 
     for (time_step = 0; time_step <= params.max_time; ++time_step)
@@ -46,24 +49,32 @@ void Simulation::run()
         }
     }
 
-    write_parameters();
 } // end run()
 
 // pair up single individuals
 void Simulation::pair_up()
 {
+    check_state();
     // all singles pair up
     // we just do this by shuffling the list and then individuals
     // in indices 0, 1 interact. 
     //
     // final index in case of unevenness has bad luck and does not interact 
     std::shuffle(singles.begin(), singles.end(),rng_r);
+
+    check_state();
 } // pair_up()
 
 // then calculate payoff according to a pd scenario
 double Simulation::payoff_pd(double const x, double const xprime)
 {
-    return((x + xprime)/(1.0 + x + xprime) - 0.8 * (x + x * x));
+
+    double retval = (x + xprime)/(1.0 + x + xprime) - 0.8 * (x + x * x);
+    
+//    std::cout << "retval: " << retval << " " << x << " " << xprime << std::endl;
+
+    assert(std::isnormal(retval));
+    return(retval);
 }
 
 // have individuals interact and calculate payoffs
@@ -71,16 +82,33 @@ void Simulation::interact()
 {
     double x1, x2;
 
+
     // first have new pairs interact
     // loop over each pair, simply by loooping over two singles at a time
     for (int new_pair_idx = 0; 
             new_pair_idx < singles.size(); new_pair_idx += 2)
     {
+        check_state();
+        if (new_pair_idx + 1 >= singles.size())
+        {
+            break;
+        }
+        
+//        std::cout << "payoff_new_pair: " << new_pair_idx << " " << singles.size() << " " << singles[new_pair_idx].resources << " " << singles[new_pair_idx].x << " " << singles[new_pair_idx].xp << std::endl;
+ //       std::cout << "payoff_new_pair: " << new_pair_idx  + 1<< " " << singles.size() << " " << singles[new_pair_idx + 1].resources << " " << singles[new_pair_idx + 1].x << " " << singles[new_pair_idx + 1].xp << std::endl;
+
+        assert(std::fabs(singles[new_pair_idx].resources) <= params.max_resources);
+        assert(std::fabs(singles[new_pair_idx + 1].resources) <= params.max_resources);
+
         x1 = singles[new_pair_idx].x + singles[new_pair_idx].xp * singles[new_pair_idx].resources;
         x2 = singles[new_pair_idx + 1].x + singles[new_pair_idx + 1].xp * singles[new_pair_idx + 1].resources;
 
+
         singles[new_pair_idx].resources += 
             payoff_pd(x1,x2) - params.startup_cost;
+
+        singles[new_pair_idx].resources = std::clamp(
+                singles[new_pair_idx].resources,0.0,params.max_resources);
 
         if (singles[new_pair_idx].resources > params.max_resources)
         {
@@ -90,14 +118,25 @@ void Simulation::interact()
         singles[new_pair_idx + 1].resources += 
             payoff_pd(x2,x1) - params.startup_cost;
         
+        singles[new_pair_idx + 1].resources = std::clamp(
+                singles[new_pair_idx + 1].resources,0.0,params.max_resources);
+        
         if (singles[new_pair_idx + 1].resources > params.max_resources)
         {
             singles[new_pair_idx + 1].resources = params.max_resources;
         }
     }
 
+    assert(paired.size() % 2 == 0);
+
     for (int pair_idx = 0; pair_idx < paired.size(); pair_idx += 2)
     {
+        check_state();
+//        std::cout << "payoff_paired: " << pair_idx << " " << paired.size() << " " << paired[pair_idx].resources << " " << paired[pair_idx].x << " " << paired[pair_idx].xp << std::endl;
+//        std::cout << "payoff_paired 2: " << pair_idx << " " << paired.size() << " " << paired[pair_idx + 1].resources << " " << paired[pair_idx + 1].x << " " << paired[pair_idx + 1].xp << std::endl;
+        assert(std::fabs(paired[pair_idx].resources) <= params.max_resources);
+        assert(std::fabs(paired[pair_idx + 1].resources) <= params.max_resources);
+
         x1 = paired[pair_idx].x + 
             paired[pair_idx].xp * paired[pair_idx].resources;
 
@@ -105,6 +144,9 @@ void Simulation::interact()
             paired[pair_idx + 1].xp * paired[pair_idx + 1].resources;
         
         paired[pair_idx].resources += payoff_pd(x1,x2);
+        
+        paired[pair_idx].resources = std::clamp(
+                paired[pair_idx].resources,0.0,params.max_resources);
 
         if (paired[pair_idx].resources > params.max_resources)
         {
@@ -112,6 +154,9 @@ void Simulation::interact()
         }
 
         paired[pair_idx + 1].resources += payoff_pd(x2,x1);
+        
+        paired[pair_idx + 1].resources = std::clamp(
+                paired[pair_idx + 1].resources,0.0,params.max_resources);
         
         if (paired[pair_idx + 1].resources > params.max_resources)
         {
@@ -133,30 +178,40 @@ int Simulation::calculate_mortalities()
 // produce offspring dependent on payoffs
 void Simulation::reproduce()
 {
+    check_state();
     // remove offspring from previous time step
     offspring.clear();
 
+    check_state();
     // make distribution of resources of all singles and paireds
     std::vector <double> resources;
 
     // make cumulative distributions of both singles and paired
     for (int new_pair_idx = 0; new_pair_idx < singles.size(); ++new_pair_idx)
     {
+//        std::cout << "singles " << time_step << " " << new_pair_idx << " " << singles.size() << " " << singles[new_pair_idx].resources << std::endl;
+        assert(std::fabs(singles[new_pair_idx].resources) <= params.max_resources);
         resources.push_back(singles[new_pair_idx].resources);
     }
     
     for (int pair_idx = 0; pair_idx < paired.size(); ++pair_idx)
     {
+//        std::cout << time_step << " " << pair_idx << " " << paired.size() << " " << paired[pair_idx].resources << std::endl;
+        assert(std::fabs(paired[pair_idx].resources) <= params.max_resources);
         resources.push_back(paired[pair_idx].resources);
     }
+    
+    check_state();
 
-    std::discrete_distribution<int> resource_distribution(resources.begin(), resources.end());
+    std::discrete_distribution<int> resource_distribution(
+            resources.begin(), resources.end());
 
     // calculate mortalities
     number_mortalities = calculate_mortalities();
 
     int parent_idx;
 
+    check_state();
     for (int offspring_idx = 0; 
             offspring_idx < number_mortalities; ++offspring_idx)
     {
@@ -172,27 +227,58 @@ void Simulation::reproduce()
 
             assert(parent_idx >= 0);
             assert(parent_idx < paired.size());
-        
-            offspring.push_back(
-                    Individual(paired[parent_idx]
+            
+            if (std::fabs(paired[parent_idx].resources) > params.max_resources)
+            {
+                std::cout << "kut" << " " << time_step << " "  
+                    << parent_idx << " " 
+                    << paired[parent_idx].resources << " " 
+                    << std::fabs(paired[parent_idx].resources) << " " 
+                    << params.max_resources << " " 
+                    << singles.size() << " " 
+                    << paired.size() << " "  << std::endl;
+
+            }
+            
+            assert(std::fabs(paired[parent_idx].resources) <= params.max_resources);
+
+            Individual Kid(paired[parent_idx]
                         ,params
-                        ,rng_r));
+                        ,rng_r);
         
+            offspring.push_back(Kid);
+        
+            assert(std::fabs(paired[parent_idx].resources) <= params.max_resources);
+            assert(Kid.resources <= params.max_resources);
             paired[parent_idx].resources -= params.cost_of_reproduction;
+
+            if (paired[parent_idx].resources < 0)
+            {
+                paired[parent_idx].resources = 0.0;
+            }
         }
         else
         {
             assert(parent_idx >= 0);
             assert(parent_idx < singles.size());
 
-            offspring.push_back(
-                    Individual(singles[parent_idx]
+            Individual Kid(singles[parent_idx]
                         ,params
-                        ,rng_r));
+                        ,rng_r);
 
+            offspring.push_back(Kid);
+
+            assert(std::fabs(singles[parent_idx].resources) <= params.max_resources);
+            assert(Kid.resources <= params.max_resources);
             singles[parent_idx].resources -= params.cost_of_reproduction;
+            
+            if (singles[parent_idx].resources < 0)
+            {
+                singles[parent_idx].resources = 0.0;
+            }
         }
     } // end for offspring idx
+    check_state();
 } // end Simulation::reproduce()
 
 void Simulation::dismiss_partner()
@@ -207,6 +293,7 @@ void Simulation::dismiss_partner()
         return;
     }
 
+    check_state();
 //    int i = 0;
 
     //  loop through newly formed pairs
@@ -224,6 +311,8 @@ void Simulation::dismiss_partner()
 
         auto pair_iter2 = std::next(pair_iter,1);
 
+        assert(pair_iter->resources <= params.max_resources);
+        assert(pair_iter2->resources <= params.max_resources);
         x1 = pair_iter->x + pair_iter->xp * pair_iter->resources;
         x2 = pair_iter2->x + pair_iter2->xp * pair_iter2->resources;
 
@@ -254,11 +343,33 @@ void Simulation::dismiss_partner()
             pair_iter = std::next(pair_iter,2);
         }
     }
+    
+    check_state();
 } // end void Simulation::dismiss_partner
+
+void Simulation::check_state()
+{
+    for (std::vector <Individual>::iterator ind_iter = singles.begin();
+            ind_iter != singles.end();
+            ++ind_iter)
+    {
+        assert(std::fabs(ind_iter->resources) <= params.max_resources);
+    }
+
+    for (std::vector <Individual>::iterator ind_iter = paired.begin();
+            ind_iter != paired.end();
+            ++ind_iter)
+    {
+        assert(std::fabs(ind_iter->resources) <= params.max_resources);
+    }
+
+} // end check_state()
 
 // mortality events as many as there are offspring
 void Simulation::mortality()
 {
+    check_state();
+
     // aux variab
     double prob_single;
 
@@ -266,11 +377,6 @@ void Simulation::mortality()
     for (int offspring_idx = 0; offspring_idx < offspring.size(); ++offspring_idx)
     {
         prob_single = (double) singles.size() / (singles.size() + paired.size());
-
-        if (prob_single > 1.0)
-        {
-            std::cout << "nou tell me: " << prob_single << std::endl;
-        }
 
         assert(prob_single >= 0.0);
         assert(prob_single <= 1.0);
@@ -329,9 +435,12 @@ void Simulation::mortality()
         }
     }
 
+    check_state();
+
     // add offspring to the stack of singles
     singles.insert(singles.end(), offspring.begin(), offspring.end());
 
+    check_state();
 } // end Simulation::mortality()
   
 void Simulation::write_data()
@@ -376,6 +485,7 @@ void Simulation::write_data()
         mean_yp += y;
         ss_yp += y*y;
 
+        assert(single_iter->resources <= params.max_resources);
         x = single_iter->resources;
         mean_resources_single += x;
         ss_resources_single += x*x;
@@ -404,6 +514,7 @@ void Simulation::write_data()
         mean_yp += y;
         ss_yp += y*y;
         
+        assert(paired_iter->resources <= params.max_resources);
         x = paired_iter->resources;
         mean_resources_paired += x;
         ss_resources_paired += x*x;
@@ -480,6 +591,8 @@ void Simulation::write_parameters()
         << "mu_xp;" << params.mu_xp << std::endl
         << "mu_yp;" << params.mu_yp << std::endl
         << "sdmu;" << params.sdmu << std::endl
+        << "seed;" << seed << std::endl
+        << "max_resources;" << params.max_resources << std::endl
         << "resource_variation;" << params.resource_variation << std::endl
         << "cost_of_reproduction;" << params.cost_of_reproduction << std::endl
         << "N;" << params.N << std::endl

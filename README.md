@@ -1,1 +1,2 @@
-# ipd_state
+# Iterated prisoners' dilemma: the role of state-dependent variation
+

@@ -5,6 +5,8 @@
 Individual::Individual(double const init_x, double const init_y) :
     x{init_x}
     ,y{init_y}
+    ,xp{0.0}
+    ,yp{0.0}
     ,resources{0.0}
 {}
 
@@ -31,22 +33,22 @@ Individual::Individual(Individual const &parent
 
     if (uniform(rng_r) < params.mu_x)
     {
-        x += mutational_effect(rng_r);
+        x += std::clamp(mutational_effect(rng_r),0.0,1.0);
     }
     
     if (uniform(rng_r) < params.mu_y)
     {
-        y += mutational_effect(rng_r);
+        y += std::clamp(mutational_effect(rng_r),0.0,1.0);
     }
     
     if (uniform(rng_r) < params.mu_xp)
     {
-        xp += mutational_effect(rng_r);
+        xp += std::clamp(mutational_effect(rng_r),-10.0,10.0);
     }
     
     if (uniform(rng_r) < params.mu_yp)
     {
-        yp += mutational_effect(rng_r);
+        yp += std::clamp(mutational_effect(rng_r),-10.0,10.0);
     }
 
     // give some initial bit of resources

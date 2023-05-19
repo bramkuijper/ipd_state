@@ -59,6 +59,8 @@ class Simulation
         void write_data_headers();
         void write_parameters();
 
+        void check_state();
+
     public:
         Simulation(Parameters const &params);
 
