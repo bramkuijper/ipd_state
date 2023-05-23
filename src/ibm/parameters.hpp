@@ -14,7 +14,7 @@ class Parameters
         double mu_xp = 0.01;
         double mu_yp = 0.01;
 
-        double sdmu = 0.02;
+        double sdmu = 0.01;
 
         unsigned int N = 2500;
         long int max_time = 10000;

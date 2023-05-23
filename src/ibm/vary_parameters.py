@@ -4,7 +4,7 @@ import datetime as dt
 
 exe_name ="./ipd_simulation.exe"
 
-max_time = 50000
+max_time = 100000
 
 init_x = [0.5]
 init_y = [0.5]

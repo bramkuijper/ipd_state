@@ -33,22 +33,27 @@ Individual::Individual(Individual const &parent
 
     if (uniform(rng_r) < params.mu_x)
     {
-        x += std::clamp(mutational_effect(rng_r),0.0,1.0);
+        x += mutational_effect(rng_r);
+
+        x = std::clamp(x,0.0,1.0);
     }
     
     if (uniform(rng_r) < params.mu_y)
     {
-        y += std::clamp(mutational_effect(rng_r),0.0,1.0);
+        y += mutational_effect(rng_r);
+        y = std::clamp(x,0.0,1.0);
     }
     
     if (uniform(rng_r) < params.mu_xp)
     {
-        xp += std::clamp(mutational_effect(rng_r),-10.0,10.0);
+        xp += mutational_effect(rng_r);
+        xp = std::clamp(xp,-10.0,10.0);
     }
     
     if (uniform(rng_r) < params.mu_yp)
     {
-        yp += std::clamp(mutational_effect(rng_r),-10.0,10.0);
+        yp += mutational_effect(rng_r);
+        yp = std::clamp(yp,-10.0,10.0);
     }
 
     // give some initial bit of resources

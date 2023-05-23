@@ -16,7 +16,6 @@ Simulation::Simulation(Parameters const &params) :
     data_file{params.file_base_name.c_str()}
     ,rd{} // initialize random device, see *.h file
     ,seed{rd()} // initialize seed
-//    ,seed{3027952275} // initialize seed
     ,rng_r{seed} // initialize the random number generator
     ,uniform{0.0,1.0} // initialize the uniform distribution
     ,uniform_pm{-1.0,1.0} // initialize the uniform distribution +1 - 1
@@ -70,10 +69,12 @@ double Simulation::payoff_pd(double const x, double const xprime)
 {
 
     double retval = (x + xprime)/(1.0 + x + xprime) - 0.8 * (x + x * x);
-    
-//    std::cout << "retval: " << retval << " " << x << " " << xprime << std::endl;
 
-    assert(std::isnormal(retval));
+    if (retval != 0.0)
+    {
+        assert(std::isnormal(retval));
+    }
+
     return(retval);
 }
 
@@ -93,9 +94,7 @@ void Simulation::interact()
         {
             break;
         }
-        
-//        std::cout << "payoff_new_pair: " << new_pair_idx << " " << singles.size() << " " << singles[new_pair_idx].resources << " " << singles[new_pair_idx].x << " " << singles[new_pair_idx].xp << std::endl;
- //       std::cout << "payoff_new_pair: " << new_pair_idx  + 1<< " " << singles.size() << " " << singles[new_pair_idx + 1].resources << " " << singles[new_pair_idx + 1].x << " " << singles[new_pair_idx + 1].xp << std::endl;
+
 
         assert(std::fabs(singles[new_pair_idx].resources) <= params.max_resources);
         assert(std::fabs(singles[new_pair_idx + 1].resources) <= params.max_resources);
@@ -103,6 +102,11 @@ void Simulation::interact()
         x1 = singles[new_pair_idx].x + singles[new_pair_idx].xp * singles[new_pair_idx].resources;
         x2 = singles[new_pair_idx + 1].x + singles[new_pair_idx + 1].xp * singles[new_pair_idx + 1].resources;
 
+//        if (time_step >= 7702)
+//        {
+//        std::cout << time_step << " " << "payoff_new_pair: " << new_pair_idx << " " << singles.size() << " " << singles[new_pair_idx].resources << " " << singles[new_pair_idx].x << " " << singles[new_pair_idx].xp << " " << x1 << std::endl;
+//       std::cout << "payoff_new_pair: " << new_pair_idx  + 1<< " " << singles.size() << " " << singles[new_pair_idx + 1].resources << " " << singles[new_pair_idx + 1].x << " " << singles[new_pair_idx + 1].xp << " " << x2 << std::endl;
+//        }
 
         singles[new_pair_idx].resources += 
             payoff_pd(x1,x2) - params.startup_cost;
@@ -354,6 +358,7 @@ void Simulation::check_state()
             ++ind_iter)
     {
         assert(std::fabs(ind_iter->resources) <= params.max_resources);
+        assert(ind_iter->y <= 1.0);
     }
 
     for (std::vector <Individual>::iterator ind_iter = paired.begin();
@@ -361,6 +366,7 @@ void Simulation::check_state()
             ++ind_iter)
     {
         assert(std::fabs(ind_iter->resources) <= params.max_resources);
+        assert(ind_iter->y <= 1.0);
     }
 
 } // end check_state()

@@ -28,6 +28,19 @@ find.params <- function(filename) {
     }
 }
 
+find.first.line <- function(filename) {
+    f <- readLines(filename)
+
+    for (line_i in 1:length(f))
+    {
+        if (length(grep("^time;",f[[line_i]])) > 0)
+        {
+            return(line_i)
+        }
+    }
+}
+
+
 xvar <- "time"
 
 # structure of the graph in JSON
@@ -82,9 +95,11 @@ if (!exists("file.name"))
 
 param.line <- find.params(file.name)
 
+firstline <- find.first.line(file.name)
+
 data.tibble <- read_delim(file=file.name
         ,delim=";"
-        ,n_max=param.line-1
+        ,skip=firstline - 1
         ,col_names=T)
 
 if (nrow(data.tibble) > 50000)
