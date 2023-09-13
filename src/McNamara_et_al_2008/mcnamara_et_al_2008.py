@@ -27,7 +27,7 @@ class Parameters:
     mu = [0.01,0.01] # first elmt coop, next one choice
 
     # values between 0 and 1
-    initial_values = [0.3,0.3] # first elmt coop, next one choice
+    initial_values = [0.3,0.1] # first elmt coop, next one choice
     max_time = 1
     xmax = 0.18
 
@@ -44,6 +44,8 @@ class McNamara2008:
         self.params = parameters
         self.init_vectors()
 
+        self.n_alleles = self.params.G + 1
+
 
     def run(self):
 
@@ -53,15 +55,17 @@ class McNamara2008:
             self.reproduce()
             self.dismissal()
 
-    def B(self, i, j):
-        return((i + j)/(1 + i + j))
+    def B(self, x_i, x_j):
+        return((x_i + x_j)/(1 + x_i + x_j))
 
-    def C(self, i):
-        return(0.8 * (i + i*i))
+    def C(self, x_i):
+        return(0.8 * (x_i + x_i*x_i))
 
     def W(self, i, j):
-
-        return(self.B(i,j) - self.C(i))
+        
+        x_i = i/self.n_alleles * self.params.xmax
+        x_j = j/self.n_alleles * self.params.xmax
+        return(self.B(x_i,x_j) - self.C(x_i))
 
     def mutate(self, k, i, trait):
 
@@ -88,14 +92,17 @@ class McNamara2008:
     # an initial round
     def pairing(self):
 
-        sum_u = self.u.sum();
+        self.sum_u = self.u.sum();
         
         # calculate mean levels in single individuals
         for i in range(0,self.params.G + 1):
             for j in range(0,self.params.G + 1):
                 for k in range(0,self.params.G + 1):
                     for l in range(0,self.params.G + 1):
-                        self.Q[i,j,k,l] = self.u[i,j] * self.u[k,l] / sum_u
+                        self.Q[i,j,k,l] = self.u[i,j] * self.u[k,l] / self.sum_u
+
+        print("sum u:")
+        print(self.sum_u)
 
     # dismiss incompatible partners
     def dismissal(self):
@@ -106,20 +113,36 @@ class McNamara2008:
         print("P pre dismissal.")
         print(self.P.sum())
 
+        # store the original vector with u frequencies
+        # we use this to calculate the new u frequencies
+        # from Q
+        u_tmp = copy.deepcopy(self.u)
+        sum_u_tmp = self.sum_u
+
+        self.u = np.zeros((self.params.G + 1, self.params.G + 1))
+
         for i in range(0,self.params.G + 1):
             for j in range(0,self.params.G + 1):
+
                 for k in range(0,self.params.G + 1):
                     for l in range(0,self.params.G + 1):
+
+                        # no dismissal
                         if (i >= l and k >= j):
                             self.P[i,j,k,l] += self.Q[i,j,k,l]
-
-                            self.Q[i,j,k,l] = 0.0
-                            
-        print("Q post dismissal.")
+                        else: # dismissal, add values to the u vector agin
+                            print(f"{i} {j} {k} {l} {u_tmp[k,l]} {self.Q[i,j,k,l]}")
+                            self.u[i,j] += self.Q[i,j,k,l] / u_tmp[k,l] * sum_u_tmp;
+                            self.u[k,l] += self.Q[i,j,k,l] / u_tmp[i,j] * sum_u_tmp;
+        
+        print("Q (pre-paired) post dismissal.")
         print(self.Q.sum())
         
-        print("P post dismissal.")
+        print("P (paired) post dismissal.")
         print(self.P.sum())
+
+        print("u (unpaired) post dismissal.")
+        print(self.u.sum())
 
         sys.exit(1)
 
@@ -152,6 +175,17 @@ class McNamara2008:
         # calculate the full sum
         self.V = self.v.sum()
 
+    def phenotype_to_genotype(self, phenotype):
+        # now locate this phenotype in a grid of evenly spaced values of 0 - G
+        the_hist = list(np.histogram(
+                a=[phenotype],
+                bins=self.params.G + 1,
+                range=(0,self.params.xmax))[0])
+
+        # this should return a list of 0s and a single 1
+        # return the index of that 1
+        return(the_hist.index(1))
+
 
     # initialize all the vectors
     def init_vectors(self):
@@ -167,17 +201,9 @@ class McNamara2008:
         initial_effort_phenotype = self.params.initial_values[0] * self.params.xmax
         initial_choice_phenotype = self.params.initial_values[1] * self.params.xmax
 
-        # now locate this somewhere in a grid of evenly spaced values of 0 - G
-        histogram_effort = np.histogram(
-                a=[initial_effort_phenotype],
-                bins=self.params.G + 1,
-                range=(0,self.params.xmax))[0]
-
-        print(histogram_effort)
-        sys.exit(1)
-
-        print(index_init_effort)
-        print(index_init_choice)
+        # from that initial effort phenotype, calculate the gene index
+        index_init_effort = self.phenotype_to_genotype(initial_effort_phenotype)
+        index_init_choice = self.phenotype_to_genotype(initial_choice_phenotype)
 
         self.u[index_init_effort,index_init_choice] = 1.0
 
