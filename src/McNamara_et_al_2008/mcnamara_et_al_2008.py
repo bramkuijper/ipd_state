@@ -22,17 +22,21 @@ class Traits(IntEnum):
 
 
 class Parameters:
+
     G = 30
     snowdrift = False
-    mu = [0.01,0.01] # first elmt coop, next one choice
 
     # values between 0 and 1
-    initial_values = [0.3,0.1] # first elmt coop, next one choice
-    max_time = 1
+    initial_values = [0.01,0.01] # first elmt coop, next one choice
+    max_time = 500
     xmax = 0.18
+    
+    mu = [0.05,0.05] # first elmt coop, next one choice
 
     A = 0.01
     S = 0.01
+
+    M = 0.01
 
 
 # set up the class corresponding to this simulation
@@ -42,18 +46,22 @@ class McNamara2008:
     def __init__(self, parameters):
 
         self.params = parameters
-        self.init_vectors()
-
         self.n_alleles = self.params.G + 1
 
+        self.init_vectors()
 
     def run(self):
 
-        for i in range(0, self.params.max_time):
+        self.output_data_headers()
+
+        for self.time_step in range(0, self.params.max_time):
             self.pairing()
             self.payoffs()
             self.reproduce()
-            self.dismissal()
+            self.dismissal_mortality()
+            self.output_data()
+
+        self.output_parameters()
 
     def B(self, x_i, x_j):
         return((x_i + x_j)/(1 + x_i + x_j))
@@ -76,15 +84,15 @@ class McNamara2008:
 
             # return 1-mu/2 if i == k
             if k == 0:
-                return(1.0 - self.params.mu[trait]/2)
+                return(1.0 - self.params.mu[trait]/2.0)
             
             # otherwise k necessarily 1, return mu/2
-            return(self.params.mu[trait]/2)
+            return(self.params.mu[trait]/2.0)
 
         if i == k:
             return(1.0 - self.params.mu[trait]);
 
-        return(self.params.mu[trait]/2)
+        return(self.params.mu[trait]/2.0)
 
 
     # pairing of single individual
@@ -93,84 +101,205 @@ class McNamara2008:
     def pairing(self):
 
         self.sum_u = self.u.sum();
+
+
+        self.Q = np.zeros(
+                (
+                    self.n_alleles,
+                    self.n_alleles,
+                    self.n_alleles,
+                    self.n_alleles
+                    ))
         
         # calculate mean levels in single individuals
-        for i in range(0,self.params.G + 1):
-            for j in range(0,self.params.G + 1):
-                for k in range(0,self.params.G + 1):
-                    for l in range(0,self.params.G + 1):
+        for i in range(0,self.n_alleles):
+            for j in range(0,self.n_alleles):
+                for k in range(0,self.n_alleles):
+                    for l in range(0,self.n_alleles):
                         self.Q[i,j,k,l] = self.u[i,j] * self.u[k,l] / self.sum_u
 
-        print("sum u:")
-        print(self.sum_u)
+    # calculate rho in eq. (A1)
+    def calculate_rho(self):
 
-    # dismiss incompatible partners
-    def dismissal(self):
+        for i in range(0,self.n_alleles):
+            for j in range(0,self.n_alleles):
+                
+                sum_P = 0.0
+                
+                for k in range(0,self.n_alleles):
+                    for l in range(0,self.n_alleles):
+
+                        sum_P += self.P[i,j,k,l]
+
+                self.rho[i,j] = sum_P + self.u[i,j]
+
+
+    # dismiss incompatible partners and have some semblance of mortality
+    def dismissal_mortality(self):
         
-        print("Q pre dismissal.")
-        print(self.Q.sum())
-        
-        print("P pre dismissal.")
-        print(self.P.sum())
+        # survival probability of a pair
+        prob_pair_survival = (1.0 - self.params.M) * (1.0 - self.params.M)
 
-        # store the original vector with u frequencies
-        # we use this to calculate the new u frequencies
-        # from Q
-        u_tmp = copy.deepcopy(self.u)
-        sum_u_tmp = self.sum_u
+        # calculate rho
+        self.calculate_rho()
 
-        self.u = np.zeros((self.params.G + 1, self.params.G + 1))
 
-        for i in range(0,self.params.G + 1):
-            for j in range(0,self.params.G + 1):
+        a = self.uprime = np.zeros((self.n_alleles, self.n_alleles))
 
-                for k in range(0,self.params.G + 1):
-                    for l in range(0,self.params.G + 1):
+        for i in range(0,self.n_alleles):
+            for j in range(0,self.n_alleles):
+
+                sumPprime = 0.0
+
+                for k in range(0,self.n_alleles):
+                    for l in range(0,self.n_alleles):
+
+                        self.P[i,j,k,l] = prob_pair_survival * self.P[i,j,k,l]
 
                         # no dismissal
                         if (i >= l and k >= j):
-                            self.P[i,j,k,l] += self.Q[i,j,k,l]
-                        else: # dismissal, add values to the u vector agin
-                            print(f"{i} {j} {k} {l} {u_tmp[k,l]} {self.Q[i,j,k,l]}")
-                            self.u[i,j] += self.Q[i,j,k,l] / u_tmp[k,l] * sum_u_tmp;
-                            self.u[k,l] += self.Q[i,j,k,l] / u_tmp[i,j] * sum_u_tmp;
-        
-        print("Q (pre-paired) post dismissal.")
-        print(self.Q.sum())
-        
-        print("P (paired) post dismissal.")
-        print(self.P.sum())
+                            self.P[i,j,k,l] += prob_pair_survival * self.Q[i,j,k,l]
 
-        print("u (unpaired) post dismissal.")
-        print(self.u.sum())
+                        sumPprime += self.P[i,j,k,l]
+
+                # equation (A7)
+                a[i,j] = (1.0 - self.params.M) * self.rho[i,j] - sumPprime 
+
+                # equation (A8)
+                self.uprime[i,j] = a[i,j] + self.params.M * self.v[i,j] / self.V
+                
+        self.output_matrix(self.uprime)
 
         sys.exit(1)
+
+        # now update u
+        self.u = self.uprime / self.uprime.sum()
+
+        # we have already updated P to P' in the loop
+        assert round(self.P.sum(),5) >= 0
+        assert round(self.P.sum(),5) <= 1
+        assert round(self.u.sum(),5) >= 0
+        assert round(self.u.sum(),5) <= 1
+
+
+    def output_data_headers(self):
+
+        header_str = "time;"
+
+        for i in range(0,self.n_alleles):
+            header_str += f"i{i};c{i};"
+
+        header_str += "mean_i;mean_c;V;"
+
+        print(header_str)
+
+
+    def output_data(self):
+
+        mean_x = 0.0
+        mean_y = 0.0
+
+        xmax_per_allele = 1.0 / self.n_alleles  * self.params.xmax
+
+        # marginal frequencies
+        i_marg = np.zeros((self.n_alleles))
+        j_marg = np.zeros((self.n_alleles))
+
+        for i in range(0, self.n_alleles):
+            for j in range(0, self.n_alleles):
+                mean_x += self.rho[i,j] * i * xmax_per_allele
+                mean_y += self.rho[i,j] * j * xmax_per_allele
+
+                i_marg[i] += self.rho[i,j]
+                j_marg[j] += self.rho[i,j]
+
+        # then print the stuff
+        outputstr = f"{self.time_step};"
+
+        for i in range(0, self.n_alleles):
+            outputstr += f"{i_marg[i]};{j_marg[i]};"
+
+        outputstr += f"{mean_x};{mean_y};{self.V};"
+
+        print(outputstr)
+
+    # output a two-dimensional matrix for error checking purposes
+    def output_matrix(self, the_matrix):
+
+        dimensions = the_matrix.shape
+
+        output_str = ""
+
+        for i in range(0, dimensions[0]):
+
+            if i == 0:
+                # print columns
+
+                # empty entry coz top-left 
+                # corner of matrix
+                output_str += ";"
+
+                for j in range(0, dimensions[1]):
+                    output_str += f"{j};"
+
+                output_str += "\n"
+
+            output_str += f"{i};"
+
+            for j in range(0, dimensions[1]):
+                output_str += f"{the_matrix[i,j]}" + ";"
+
+            output_str += "\n"
+
+        print(output_str)
+
+    def output_parameters(self):
+        output_str ="\n\n"
+
+        output_str += f"G;{self.params.G}\n"
+
+        output_str += f"init_i;{self.params.initial_values[0]}\n"
+        output_str += f"init_c;{self.params.initial_values[1]}\n"
+        
+        output_str += f"xmax;{self.params.xmax}\n"
+        
+        output_str += f"mu_i;{self.params.mu[0]}\n"
+        output_str += f"mu_c;{self.params.mu[1]}\n"
+    
+        output_str += f"A;{self.params.A}\n"
+        output_str += f"S;{self.params.S}\n"
+        output_str += f"M;{self.params.M}\n"
+
+        print(output_str)
 
 
     # calculate payoffs
     def payoffs(self):
 
         # calculate mean levels in single individuals
-        for i in range(0,self.params.G + 1):
-            for j in range(0,self.params.G + 1):
+        for i in range(0,self.n_alleles):
+            for j in range(0,self.n_alleles):
 
                 # reset payoffs 
                 self.r[i,j] = 0.0
 
-                for k in range(0,self.params.G + 1):
-                    for l in range(0,self.params.G + 1):
+                for k in range(0,self.n_alleles):
+                    for l in range(0,self.n_alleles):
                         self.r[i,j] += self.P[i,j,k,l] * (self.W(i,k) + self.params.A) + self.Q[i,j,k,l] * (self.W(i,k) + self.params.A - self.params.S)
+
+    
 
     # reproduce
     def reproduce(self):
 
-        for k in range(0,self.params.G + 1):
-            for l in range(0,self.params.G + 1):
+        for k in range(0,self.n_alleles):
+            for l in range(0,self.n_alleles):
                 self.v[k,l] = 0.0
 
-                for i in range(0,self.params.G + 1):
-                    for j in range(0,self.params.G + 1):
+                for i in range(0,self.n_alleles):
+                    for j in range(0,self.n_alleles):
                         self.v[k,l] += self.r[i,j] * self.mutate(k, i, Traits.Investment) * self.mutate(l, j, Traits.Choice)
+
 
         # calculate the full sum
         self.V = self.v.sum()
@@ -179,7 +308,7 @@ class McNamara2008:
         # now locate this phenotype in a grid of evenly spaced values of 0 - G
         the_hist = list(np.histogram(
                 a=[phenotype],
-                bins=self.params.G + 1,
+                bins=self.n_alleles,
                 range=(0,self.params.xmax))[0])
 
         # this should return a list of 0s and a single 1
@@ -194,7 +323,7 @@ class McNamara2008:
         # of single individuals, u
         # rows is effort level
         # cols is choice level
-        self.u = np.zeros((self.params.G + 1, self.params.G + 1))
+        self.u = self.rho = np.zeros((self.n_alleles, self.n_alleles))
 
         # calculate the indices where we need to set the frequency to 1
         # this will be the initial population
@@ -208,16 +337,16 @@ class McNamara2008:
         self.u[index_init_effort,index_init_choice] = 1.0
 
         # initialize frequency of surviving pairs
-        self.P = np.zeros((self.params.G + 1, self.params.G + 1, self.params.G + 1, self.params.G + 1))
+        self.P = np.zeros((self.n_alleles, self.n_alleles, self.n_alleles, self.n_alleles))
         
         # initialize frequency of new pairs, all at 0
         self.Q = copy.deepcopy(self.P)
 
         # vector for payoffs
-        self.r = np.zeros((self.params.G + 1, self.params.G + 1))
+        self.r = np.zeros((self.n_alleles, self.n_alleles))
 
         # vector for payoffs x mutation rates
-        self.v = np.zeros((self.params.G + 1, self.params.G + 1, self.params.G + 1, self.params.G + 1))
+        self.v = np.zeros((self.n_alleles, self.n_alleles))
 
         # total V
         self.V = 0.0;
@@ -228,14 +357,14 @@ class McNamara2008:
 
         # calculate mean levels of choice and cooperation 
         # in single individuals
-        for i in range(0,self.params.G + 1):
-            for j in range(0,self.params.G + 1):
+        for i in range(0,self.n_alleles):
+            for j in range(0,self.n_alleles):
                 
                 means[0] += self.u[i,j] * i / self.params.G * self.params.xmax
                 means[1] += self.u[i,j] * j / self.params.G * self.params.xmax
 
-                for k in range(0,self.params.G + 1):
-                    for l in range(0,self.params.G + 1):
+                for k in range(0,self.n_alleles):
+                    for l in range(0,self.n_alleles):
                         means[0] += (self.P[i,j,k,l] * i + self.P[i,j,k,l] * k) / self.params.G * self.params.xmax
                         means[1] += (self.P[i,j,k,l] * j + self.P[i,j,k,l] * l) / self.params.G * self.params.xmax
 
