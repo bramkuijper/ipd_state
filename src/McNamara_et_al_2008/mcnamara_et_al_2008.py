@@ -168,9 +168,6 @@ class McNamara2008:
                 # equation (A8)
                 self.uprime[i,j] = a[i,j] + self.params.M * self.v[i,j] / self.V
                 
-        self.output_matrix(self.uprime)
-
-        sys.exit(1)
 
         # now update u
         self.u = self.uprime / self.uprime.sum()
