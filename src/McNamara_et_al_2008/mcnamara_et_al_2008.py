@@ -27,7 +27,7 @@ class Parameters:
     snowdrift = False
 
     # values between 0 and 1
-    initial_values = [0.01,0.01] # first elmt coop, next one choice
+    initial_values = [0.05,0.05] # first elmt coop, next one choice
     max_time = 500
     xmax = 0.18
     
@@ -54,6 +54,8 @@ class McNamara2008:
 
         self.output_data_headers()
 
+        self.fillWmatrix()
+
         for self.time_step in range(0, self.params.max_time):
             self.pairing()
             self.payoffs()
@@ -74,6 +76,17 @@ class McNamara2008:
         x_i = i/self.n_alleles * self.params.xmax
         x_j = j/self.n_alleles * self.params.xmax
         return(self.B(x_i,x_j) - self.C(x_i))
+
+    def fillWmatrix(self):
+        
+        self.Wval = np.zeros((self.n_alleles,self.n_alleles))
+        
+        for i in range(0,self.n_alleles):
+            for j in range(0,self.n_alleles):
+
+                self.Wval[i,j] = self.W(i,j)
+
+
 
     def mutate(self, k, i, trait):
 
@@ -144,6 +157,7 @@ class McNamara2008:
         self.calculate_rho()
 
 
+
         a = self.uprime = np.zeros((self.n_alleles, self.n_alleles))
 
         for i in range(0,self.n_alleles):
@@ -169,8 +183,9 @@ class McNamara2008:
                 self.uprime[i,j] = a[i,j] + self.params.M * self.v[i,j] / self.V
                 
 
-        # now update u
+        # now normalize u and P
         self.u = self.uprime / self.uprime.sum()
+        self.P = self.P / self.P.sum()
 
         # we have already updated P to P' in the loop
         assert round(self.P.sum(),5) >= 0
@@ -282,12 +297,12 @@ class McNamara2008:
 
                 for k in range(0,self.n_alleles):
                     for l in range(0,self.n_alleles):
-                        self.r[i,j] += self.P[i,j,k,l] * (self.W(i,k) + self.params.A) + self.Q[i,j,k,l] * (self.W(i,k) + self.params.A - self.params.S)
 
-    
+                        self.r[i,j] += self.P[i,j,k,l] * (self.Wval[i,k] + self.params.A) + self.Q[i,j,k,l] * (self.Wval[i,k] + self.params.A - self.params.S)
 
     # reproduce
     def reproduce(self):
+
 
         for k in range(0,self.n_alleles):
             for l in range(0,self.n_alleles):
