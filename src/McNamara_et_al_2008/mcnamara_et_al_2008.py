@@ -27,7 +27,7 @@ class Parameters:
     snowdrift = False
 
     # values between 0 and 1
-    initial_values = [0.05,0.05] # first elmt coop, next one choice
+    initial_values = [0.8,0.8] # first elmt coop, next one choice
     max_time = 500
     xmax = 0.18
     
@@ -113,8 +113,11 @@ class McNamara2008:
     # an initial round
     def pairing(self):
 
-        self.sum_u = self.u.sum();
 
+        self.sum_u = self.u.sum();
+        
+        assert round(self.sum_u,5) >= 0
+        assert round(self.sum_u,5) <= 1
 
         self.Q = np.zeros(
                 (
@@ -134,6 +137,13 @@ class McNamara2008:
     # calculate rho in eq. (A1)
     def calculate_rho(self):
 
+        assert round(self.P.sum(),5) >= 0
+        assert round(self.P.sum(),5) <= 1
+        assert round(self.u.sum(),5) >= 0
+        assert round(self.u.sum(),5) <= 1
+
+        self.rho = np.zeros((self.n_alleles, self.n_alleles))
+
         for i in range(0,self.n_alleles):
             for j in range(0,self.n_alleles):
                 
@@ -146,6 +156,11 @@ class McNamara2008:
 
                 self.rho[i,j] = sum_P + self.u[i,j]
 
+        # just normalize it
+        self.rho = self.rho / self.rho.sum()
+
+        assert round(self.rho.sum(),5) >= 0
+        assert round(self.rho.sum(),5) <= 1.0
 
     # dismiss incompatible partners and have some semblance of mortality
     def dismissal_mortality(self):
@@ -302,7 +317,6 @@ class McNamara2008:
 
     # reproduce
     def reproduce(self):
-
 
         for k in range(0,self.n_alleles):
             for l in range(0,self.n_alleles):
