@@ -21,7 +21,8 @@ Simulation::Simulation(Parameters const &params) :
     ,uniform_pm{-1.0,1.0} // initialize the uniform distribution +1 - 1
     ,params{params} // store parameter object
     ,singles{params.N,Individual(params.init_x,params.init_y)} // initialize pop
-{} // end constructor
+{
+} // end constructor
 
 // run the actual simulation over max_time time steps
 void Simulation::run()
@@ -67,7 +68,14 @@ void Simulation::pair_up()
 // then calculate payoff according to a pd scenario
 double Simulation::payoff_pd(double const x, double const xprime)
 {
+    double xsum = x + xprime;
+    double B = -1.4 * xsum * xsum + 6 * xsum;
 
+    double C = -1.6 * x * x + 4.56 * x; 
+}
+
+double Simulation::payoff_snowdrift(double const x, double const xprime)
+{
     double retval = (x + xprime)/(1.0 + x + xprime) - 0.8 * (x + x * x);
 
     if (retval != 0.0)
@@ -76,6 +84,16 @@ double Simulation::payoff_pd(double const x, double const xprime)
     }
 
     return(retval);
+}
+
+double Simulation::payoff(double const x, double const xprime)
+{
+    if (params.cooperation_type == prisoners_dilemma)
+    {
+        return(payoff_snowdrift(x, xprime));
+    }
+
+    return(payoff_pd(x, xprime));
 }
 
 // have individuals interact and calculate payoffs
@@ -90,26 +108,23 @@ void Simulation::interact()
             new_pair_idx < singles.size(); new_pair_idx += 2)
     {
         check_state();
+        
         if (new_pair_idx + 1 >= singles.size())
         {
             break;
         }
 
-
         assert(std::fabs(singles[new_pair_idx].resources) <= params.max_resources);
         assert(std::fabs(singles[new_pair_idx + 1].resources) <= params.max_resources);
 
+        // gift by individual 1: baseline (x) + xp * (individual 1's resources)
         x1 = singles[new_pair_idx].x + singles[new_pair_idx].xp * singles[new_pair_idx].resources;
+        // gift by individual 2: baseline (x) + xp * (individual 2's resources)
         x2 = singles[new_pair_idx + 1].x + singles[new_pair_idx + 1].xp * singles[new_pair_idx + 1].resources;
 
-//        if (time_step >= 7702)
-//        {
-//        std::cout << time_step << " " << "payoff_new_pair: " << new_pair_idx << " " << singles.size() << " " << singles[new_pair_idx].resources << " " << singles[new_pair_idx].x << " " << singles[new_pair_idx].xp << " " << x1 << std::endl;
-//       std::cout << "payoff_new_pair: " << new_pair_idx  + 1<< " " << singles.size() << " " << singles[new_pair_idx + 1].resources << " " << singles[new_pair_idx + 1].x << " " << singles[new_pair_idx + 1].xp << " " << x2 << std::endl;
-//        }
-
+        // now calculate the payoff according to PD logic
         singles[new_pair_idx].resources += 
-            payoff_pd(x1,x2) - params.startup_cost;
+            payoff(x1,x2) - params.startup_cost;
 
         singles[new_pair_idx].resources = std::clamp(
                 singles[new_pair_idx].resources,0.0,params.max_resources);
@@ -120,7 +135,7 @@ void Simulation::interact()
         }
 
         singles[new_pair_idx + 1].resources += 
-            payoff_pd(x2,x1) - params.startup_cost;
+            payoff(x2,x1) - params.startup_cost;
         
         singles[new_pair_idx + 1].resources = std::clamp(
                 singles[new_pair_idx + 1].resources,0.0,params.max_resources);
@@ -147,7 +162,7 @@ void Simulation::interact()
         x2 = paired[pair_idx + 1].x + 
             paired[pair_idx + 1].xp * paired[pair_idx + 1].resources;
         
-        paired[pair_idx].resources += payoff_pd(x1,x2);
+        paired[pair_idx].resources += payoff(x1,x2);
         
         paired[pair_idx].resources = std::clamp(
                 paired[pair_idx].resources,0.0,params.max_resources);
@@ -157,7 +172,7 @@ void Simulation::interact()
             paired[pair_idx].resources = params.max_resources;
         }
 
-        paired[pair_idx + 1].resources += payoff_pd(x2,x1);
+        paired[pair_idx + 1].resources += payoff(x2,x1);
         
         paired[pair_idx + 1].resources = std::clamp(
                 paired[pair_idx + 1].resources,0.0,params.max_resources);
@@ -207,6 +222,8 @@ void Simulation::reproduce()
     
     check_state();
 
+    // make a distribution of all individuals 
+    // according to their resources
     std::discrete_distribution<int> resource_distribution(
             resources.begin(), resources.end());
 
@@ -222,9 +239,9 @@ void Simulation::reproduce()
 
         // sample parent from resource distribution
         parent_idx = resource_distribution(rng_r);
-        
-
-        // TODO potential for bugs here
+       
+        // parent_idx exceeds the stack of singles?
+        // hence it must be paired
         if (parent_idx >= singles.size())
         {
             parent_idx -= singles.size();
@@ -234,18 +251,18 @@ void Simulation::reproduce()
             
             if (std::fabs(paired[parent_idx].resources) > params.max_resources)
             {
-                std::cout << "kut" << " " << time_step << " "  
+                std::cout << "not good: " << " " << time_step << " "  
                     << parent_idx << " " 
                     << paired[parent_idx].resources << " " 
                     << std::fabs(paired[parent_idx].resources) << " " 
                     << params.max_resources << " " 
                     << singles.size() << " " 
                     << paired.size() << " "  << std::endl;
-
             }
             
             assert(std::fabs(paired[parent_idx].resources) <= params.max_resources);
 
+            // make an offspring
             Individual Kid(paired[parent_idx]
                         ,params
                         ,rng_r);
@@ -254,6 +271,7 @@ void Simulation::reproduce()
         
             assert(std::fabs(paired[parent_idx].resources) <= params.max_resources);
             assert(Kid.resources <= params.max_resources);
+
             paired[parent_idx].resources -= params.cost_of_reproduction;
 
             if (paired[parent_idx].resources < 0)
@@ -351,6 +369,7 @@ void Simulation::dismiss_partner()
     check_state();
 } // end void Simulation::dismiss_partner
 
+// Bounds checking on all the individual's states
 void Simulation::check_state()
 {
     for (std::vector <Individual>::iterator ind_iter = singles.begin();
@@ -598,6 +617,7 @@ void Simulation::write_parameters()
         << "mu_yp;" << params.mu_yp << std::endl
         << "sdmu;" << params.sdmu << std::endl
         << "seed;" << seed << std::endl
+        << "game_type;" << params.cooperation_type << std::endl
         << "max_resources;" << params.max_resources << std::endl
         << "resource_variation;" << params.resource_variation << std::endl
         << "cost_of_reproduction;" << params.cost_of_reproduction << std::endl

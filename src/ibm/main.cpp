@@ -11,7 +11,9 @@ int main(int argc, char **argv)
     params.mu_y = std::stod(argv[4]);
     params.mu_xp = std::stod(argv[5]);
     params.mu_yp = std::stod(argv[6]);
-    params.file_base_name = argv[7];
+    params.cooperation_type = static_cast<game_type>(std::stoi(argv[7]));
+    params.startup_cost = std::stod(argv[8]);
+    params.file_base_name = argv[9];
 
     Simulation sim(params);
 

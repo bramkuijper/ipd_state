@@ -2,6 +2,7 @@
 #define _SIMULATION_HPP_
 
 #include <vector>
+#include <functional>
 #include <random>
 #include <iostream>
 #include <fstream>
@@ -48,6 +49,8 @@ class Simulation
         void interact();
         void reproduce();
         double payoff_pd(double const x, double const xprime);
+        double payoff_snowdrift(double const x, double const xprime);
+        double payoff(double const x, double const xprime);
 
         void dismiss_partner();
 

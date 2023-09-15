@@ -3,6 +3,12 @@
 
 #include <string>
 
+enum game_type
+{
+    prisoners_dilemma,
+    snowdrift_game
+};
+
 class Parameters
 {
     public:
@@ -14,9 +20,11 @@ class Parameters
         double mu_xp = 0.01;
         double mu_yp = 0.01;
 
+        game_type cooperation_type = prisoners_dilemma;
+
         double sdmu = 0.01;
 
-        unsigned int N = 2500;
+        unsigned int N = 1000;
         long int max_time = 10000;
 
         double init_x = 0.5;
