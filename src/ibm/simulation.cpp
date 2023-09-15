@@ -154,8 +154,6 @@ void Simulation::interact()
     for (int pair_idx = 0; pair_idx < paired.size(); pair_idx += 2)
     {
         check_state();
-//        std::cout << "payoff_paired: " << pair_idx << " " << paired.size() << " " << paired[pair_idx].resources << " " << paired[pair_idx].x << " " << paired[pair_idx].xp << std::endl;
-//        std::cout << "payoff_paired 2: " << pair_idx << " " << paired.size() << " " << paired[pair_idx + 1].resources << " " << paired[pair_idx + 1].x << " " << paired[pair_idx + 1].xp << std::endl;
         assert(std::fabs(paired[pair_idx].resources) <= params.max_resources);
         assert(std::fabs(paired[pair_idx + 1].resources) <= params.max_resources);
 
@@ -211,7 +209,6 @@ void Simulation::reproduce()
     // make cumulative distributions of both singles and paired
     for (int new_pair_idx = 0; new_pair_idx < singles.size(); ++new_pair_idx)
     {
-//        std::cout << "singles " << time_step << " " << new_pair_idx << " " << singles.size() << " " << singles[new_pair_idx].resources << std::endl;
         assert(std::fabs(singles[new_pair_idx].resources) <= params.max_resources);
         resources.push_back(singles[new_pair_idx].resources);
     }
