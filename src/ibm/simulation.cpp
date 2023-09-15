@@ -72,6 +72,9 @@ double Simulation::payoff_pd(double const x, double const xprime)
     double B = -1.4 * xsum * xsum + 6 * xsum;
 
     double C = -1.6 * x * x + 4.56 * x; 
+
+    assert(std::isnormal(B-C));
+    return(B - C);
 }
 
 double Simulation::payoff_snowdrift(double const x, double const xprime)
@@ -90,10 +93,10 @@ double Simulation::payoff(double const x, double const xprime)
 {
     if (params.cooperation_type == prisoners_dilemma)
     {
-        return(payoff_snowdrift(x, xprime));
+        return(payoff_pd(x, xprime));
     }
 
-    return(payoff_pd(x, xprime));
+    return(payoff_snowdrift(x, xprime));
 }
 
 // have individuals interact and calculate payoffs
@@ -605,8 +608,7 @@ void Simulation::write_data_headers()
         << "var_resources_paired;" 
         << "npaired;nsingle;nmort;" << std::endl;
 } // end write_data_headers()
-    
-    
+
 void Simulation::write_parameters()
 {
     data_file << std::endl
