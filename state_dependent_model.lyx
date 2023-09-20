@@ -5,6 +5,19 @@
 \save_transient_properties true
 \origin unavailable
 \textclass article
+\begin_preamble
+\usepackage{heuristica}
+\usepackage[heuristica,vvarbb,bigdelims]{newtxmath}
+\usepackage[T1]{fontenc}
+\renewcommand*\oldstylenums[1]{\textosf{#1}}
+\usepackage{color}
+\definecolor{slateblue}{RGB}{22,88,143}
+\usepackage{doi}
+
+\usepackage{datetime}
+\date{\today\ at \currenttime}
+\usepackage{tcolorbox}
+\end_preamble
 \use_default_options true
 \maintain_unincluded_children false
 \language english
@@ -28,10 +41,21 @@
 \output_sync 0
 \bibtex_command default
 \index_command default
-\paperfontsize default
-\use_hyperref false
+\paperfontsize 12
+\spacing single
+\use_hyperref true
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks true
+\pdf_pdfborder true
+\pdf_colorlinks true
+\pdf_backref false
+\pdf_pdfusetitle true
+\pdf_quoted_options "citecolor=slateblue,linkcolor=slateblue,urlcolor=slateblue"
 \papersize default
-\use_geometry false
+\use_geometry true
 \use_package amsmath 1
 \use_package amssymb 1
 \use_package cancel 1
@@ -42,8 +66,9 @@
 \use_package stackrel 1
 \use_package stmaryrd 1
 \use_package undertilde 1
-\cite_engine basic
-\cite_engine_type default
+\cite_engine natbib
+\cite_engine_type authoryear
+\biblio_style plainnat
 \use_bibtopic false
 \use_indices false
 \paperorientation portrait
@@ -55,6 +80,10 @@
 \shortcut idx
 \color #008000
 \end_index
+\leftmargin 2.5cm
+\topmargin 2.5cm
+\rightmargin 2.5cm
+\bottommargin 2.5cm
 \secnumdepth 3
 \tocdepth 3
 \paragraph_separation indent
@@ -75,6 +104,15 @@
 
 \begin_body
 
+\begin_layout Title
+State-dependent choosiness & cooperation
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\end_layout
+
 \begin_layout Section
 Cooperation, partner choice and resources: dynamic programming
 \end_layout
@@ -84,7 +122,7 @@ Individuals are in resource state
 \begin_inset Formula $x$
 \end_inset
 
- that is distributed with distribution 
+ that is distributed according to the distribution 
 \begin_inset Formula $f(x)$
 \end_inset
 
@@ -93,11 +131,62 @@ Individuals are in resource state
 \begin_inset Formula $x^{\prime},$
 \end_inset
 
- after which they enjoy a payoff 
-\begin_inset Formula $W\left(x,x^{\prime}\right).$
+ after which they transfer gifts to each other dependent on their resources
+ (similar to a continuous iterated prisoner's dilemma, so that the focal
+ transfers 
+\begin_inset Formula $g\left(x\right)$
 \end_inset
 
- 
+ and the non-focal transfers 
+\begin_inset Formula $h\left(x^{\prime}\right)$
+\end_inset
+
+.
+ They then enjoy a payoff 
+\begin_inset Formula $W\left(x,x^{\prime}\right)\equiv W\left(g\left(x\right),h\left(x^{\prime}\right)\right).$
+\end_inset
+
+ We focus on different dismissal probabilities, for example based on raw
+ resource levels after this round of interaction - 
+\begin_inset Formula $d\left(x+h\left(x^{\prime}\right),x^{\prime}+g\left(x\right)\right)$
+\end_inset
+
+, or simply based on the gifts 
+\begin_inset Formula $d\left(h\left(x^{\prime}\right),g\left(x\right)\right)$
+\end_inset
+
+.
+ Let 
+\begin_inset Formula $S$
+\end_inset
+
+ reflect the cost of finding a new partner.
+ Let 
+\begin_inset Formula $D$
+\end_inset
+
+reflect the expected future payoff if the focal dismisses its co-player.
+  we then have
+\begin_inset Formula 
+\begin{align*}
+D & =\left(1-M\right)\int_{-\infty}^{\infty}W\left(x,x^{\prime}\right)-
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+btprint "btPrintCited"
+bibfiles "~/Projects/databases/transgenerational"
+options "bram"
+
+\end_inset
+
+
 \end_layout
 
 \end_body
