@@ -76,6 +76,15 @@
 \begin_body
 
 \begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+So far, cooperation is allowed to depend on aspects such as `standing' (e.g.,
+ 
+\end_layout
+
+\begin_layout Section
 Cooperation, partner choice and resources: dynamic programming
 \end_layout
 
@@ -97,7 +106,11 @@ Individuals are in resource state
 \begin_inset Formula $W\left(x,x^{\prime}\right).$
 \end_inset
 
- 
+ They can then choose to 
+\end_layout
+
+\begin_layout Standard
+What do you expect? it perhaps would make 
 \end_layout
 
 \end_body

@@ -46,7 +46,7 @@ p1 <-ggplot(data=plasticity_values_l
 
 p2 <-ggplot(data=resource_values_l
        ,mapping=aes(x=startup_cost, y=resource_values)) +
-    geom_point(mapping=aes(colour=resources)) +
+    geom_point(mapping=aes(colour=resource_values_ls)) +
     facet_grid(.~game_type_label) +
     theme_classic() +
     scale_colour_brewer(palette = "Set1")
