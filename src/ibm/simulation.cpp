@@ -22,7 +22,17 @@ Simulation::Simulation(Parameters const &params) :
     ,params{params} // store parameter object
     ,singles{params.N,Individual(params.init_x,params.init_y)} // initialize pop
 {
+    // initialize resources into all the singles
+    init_resources_singles();
 } // end constructor
+
+void Simulation::init_resources_singles()
+{
+    for (size_t single_idx = 0; single_idx < singles.size(); ++single_idx)
+    {
+        singles[single_idx].resources = params.resource_variation * uniform(rng_r);
+    }
+}
 
 // run the actual simulation over max_time time steps
 void Simulation::run()
@@ -73,7 +83,16 @@ double Simulation::payoff_pd(double const x, double const xprime)
 
     double C = -1.6 * x * x + 4.56 * x; 
 
-    assert(std::isnormal(B-C));
+    if (B != 0.0)
+    {
+        assert(std::isnormal(B));
+    }
+
+    if (C != 0.0)
+    {
+        assert(std::isnormal(B));
+    }
+
     return(B - C);
 }
 
@@ -104,14 +123,14 @@ void Simulation::interact()
 {
     double x1, x2;
 
-
     // first have new pairs interact
     // loop over each pair, simply by loooping over two singles at a time
     for (int new_pair_idx = 0; 
             new_pair_idx < singles.size(); new_pair_idx += 2)
     {
         check_state();
-        
+    
+        // end of the stack 
         if (new_pair_idx + 1 >= singles.size())
         {
             break;
@@ -279,7 +298,7 @@ void Simulation::reproduce()
                 paired[parent_idx].resources = 0.0;
             }
         }
-        else
+        else // parent but currently single
         {
             assert(parent_idx >= 0);
             assert(parent_idx < singles.size());
@@ -318,14 +337,12 @@ void Simulation::dismiss_partner()
     check_state();
 //    int i = 0;
 
-    //  loop through newly formed pairs
+    //  loop through newly formed pairs (which are still stored in the singles vector)
     for (std::vector<Individual>::iterator pair_iter = singles.begin();
             pair_iter != singles.end();
 
         )
     {
-//        std::cout << time_step << " " << "pair " << i << " " << singles.size() << " " << std::distance(pair_iter, singles.end()) << " " << std::endl;
-//        ++i;
         if (std::distance(pair_iter, singles.end()) <= 1)
         {
             break;
@@ -348,7 +365,6 @@ void Simulation::dismiss_partner()
         {
             paired.push_back(*pair_iter);
             paired.push_back(*pair_iter2);
-
 
             // erase both individuals from the singles
             pair_iter = singles.erase(pair_iter);
@@ -399,8 +415,10 @@ void Simulation::mortality()
     double prob_single;
 
     // have offspring replace existing breeders
-    for (int offspring_idx = 0; offspring_idx < offspring.size(); ++offspring_idx)
+    for (int offspring_idx = 0; 
+            offspring_idx < offspring.size(); ++offspring_idx)
     {
+        // calculate probability we will sample a single
         prob_single = (double) singles.size() / (singles.size() + paired.size());
 
         assert(prob_single >= 0.0);
@@ -411,9 +429,10 @@ void Simulation::mortality()
             assert(singles.size() > 0);
             std::uniform_int_distribution <int> single_sampler(0,singles.size() - 1);
 
+            // erase this single
             singles.erase(singles.begin() + single_sampler(rng_r));
         }
-        else
+        else //mortality occurred in a pair
         {
             assert(paired.size() >= 2);
             assert(paired.size() % 2 == 0);
@@ -425,8 +444,8 @@ void Simulation::mortality()
             
             // get index of partner
             // if even, i.e., 0, 2, 4, etc, we have the first member of a pair
-            // hence the partner index is the focal + 1
-            // other the partner's index is the focal's - 1
+            // hence the partner index is paired_idx + 1
+            // otherwise the partner's index is paired_idx - 1
             if (random_paired_idx % 2 == 0)
             {
                 assert(random_paired_idx + 1 > 0);
@@ -441,7 +460,7 @@ void Simulation::mortality()
                 // remove focal's partner
                 paired.erase(paired.begin() + random_paired_idx);
             }
-            else 
+            else  // partner's index is -1
             {
                 assert(random_paired_idx - 1 >= 0);
 
@@ -457,8 +476,8 @@ void Simulation::mortality()
                 paired.erase(paired.begin() + random_paired_idx - 1);
 
             }
-        }
-    }
+        } // end else not single
+    } // end for offspring size
 
     check_state();
 

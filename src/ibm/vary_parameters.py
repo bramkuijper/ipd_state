@@ -15,6 +15,9 @@ startup_cost = [ 0.01, 0.1, 0.5, 1 ]
 
 cooperation_type = [ 0, 1]
 
+mortality_prob = [ 0.1, 0.5, 0.05]
+resource_variation  = [ 1.0 ]
+
 mu_xp = 0.02
 mu_yp = 0.02
 
@@ -32,9 +35,13 @@ for rep_i in range(0,nrep):
             for mu_y_i in mu_y:
                 for startup_cost_i in startup_cost:
                     for cooperation_type_i in cooperation_type:
-                        print(f"{exe_name}" +\
-                                f" {max_time} {init_x_i}" +\
-                                f" {init_y_i} {mu_y_i} {mu_xp} {mu_yp}" +\
-                                f" {cooperation_type_i} {startup_cost_i} {basename}_{counter}")
+                        for mortality_prob_i in mortality_prob:
+                            for resource_variation_i in resource_variation:
+                                print(f"{exe_name}" +\
+                                        f" {max_time} {init_x_i}" +\
+                                        f" {init_y_i} {mu_y_i} {mu_xp} {mu_yp}" +\
+                                        f" {cooperation_type_i} {startup_cost_i}" +\
+                                        f" {mortality_prob_i} {resource_variation_i}" +\
+                                        f" {basename}_{counter}")
 
-                        counter += 1
+                                counter += 1

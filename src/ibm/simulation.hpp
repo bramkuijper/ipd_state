@@ -48,6 +48,7 @@ class Simulation
         void pair_up();
         void interact();
         void reproduce();
+        void init_resources_singles();
         double payoff_pd(double const x, double const xprime);
         double payoff_snowdrift(double const x, double const xprime);
         double payoff(double const x, double const xprime);
