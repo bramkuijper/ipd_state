@@ -128,7 +128,7 @@ Individuals are in resource state
 
 .
  They randomly pair with a partner in resource state 
-\begin_inset Formula $x^{\prime},$
+\begin_inset Formula $x_{\mathrm{p}},$
 \end_inset
 
  after which they transfer gifts to each other dependent on their resources
@@ -143,10 +143,20 @@ Individuals are in resource state
 
 .
  They then enjoy a payoff 
-\begin_inset Formula $W\left(x,x^{\prime}\right)\equiv W\left(g\left(x\right),h\left(x^{\prime}\right)\right).$
+\begin_inset Formula 
+\begin{align*}
+W\left(x,x^{\prime}\right) & \equiv W\left(x+h\left(x_{\mathrm{p}}\right)-g\left(x\right),x_{\mathrm{p}}+g\left(x\right)-h\left(x_{\mathrm{p}}\right)\right),
+\end{align*}
+
 \end_inset
 
- We focus on different dismissal probabilities, for example based on raw
+where the first argument reflects the amount of resources that the focal
+ has received and given away, while the second argument reflects the amount
+ of resources the focal has received and given away.
+\end_layout
+
+\begin_layout Standard
+We focus on different dismissal probabilities, for example based on raw
  resource levels after this round of interaction - 
 \begin_inset Formula $d\left(x+h\left(x^{\prime}\right),x^{\prime}+g\left(x\right)\right)$
 \end_inset
@@ -157,19 +167,22 @@ Individuals are in resource state
 
 .
  Let 
-\begin_inset Formula $S$
+\begin_inset Formula $S(x)$
 \end_inset
 
- reflect the cost of finding a new partner.
- Let 
+ reflect the resource-dependent cost of finding a new partner and 
+\begin_inset Formula $M(x)$
+\end_inset
+
+ the resource-dependentLet 
 \begin_inset Formula $D$
 \end_inset
 
 reflect the expected future payoff if the focal dismisses its co-player.
-  we then have
+ We then have
 \begin_inset Formula 
 \begin{align*}
-D & =\left(1-M\right)\int_{-\infty}^{\infty}W\left(x,x^{\prime}\right)-
+D(x) & =\left[1-M\left(x\right)\right]\int_{-\infty}^{\infty}\left[W\left(x,x^{\prime}\right)-S(x)+\mathrm{max}\left(V\left(x\right),D(x)\right)\right],
 \end{align*}
 
 \end_inset
