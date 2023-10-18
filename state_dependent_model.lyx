@@ -13,10 +13,6 @@
 \usepackage{color}
 \definecolor{slateblue}{RGB}{22,88,143}
 \usepackage{doi}
-
-\usepackage{datetime}
-\date{\today\ at \currenttime}
-\usepackage{tcolorbox}
 \end_preamble
 \use_default_options true
 \maintain_unincluded_children false
@@ -118,55 +114,170 @@ Cooperation, partner choice and resources: dynamic programming
 \end_layout
 
 \begin_layout Standard
-Individuals are in resource state 
+Let the current level of an individual's reserves be 
 \begin_inset Formula $x$
 \end_inset
 
- that is distributed according to the distribution 
-\begin_inset Formula $f(x)$
+.
+ A currently unpaired individual randomly pairs up with a partner in resource
+ state 
+\begin_inset Formula $x^{\prime}$
 \end_inset
 
 .
- They randomly pair with a partner in resource state 
-\begin_inset Formula $x_{\mathrm{p}},$
+ Both individuals invest in each other dependent on their resources (similar
+ to a continuous iterated prisoner's dilemma.
+ We assume that the focal transfers an investment of 
+\begin_inset Formula $g\left(x,\tau\right)$
 \end_inset
 
- after which they transfer gifts to each other dependent on their resources
- (similar to a continuous iterated prisoner's dilemma, so that the focal
- transfers 
-\begin_inset Formula $g\left(x\right)$
+, which is allowed to depend both on the focal's reserves as well as on
+ the number of interactions 
+\begin_inset Formula $\tau$
 \end_inset
 
- and the non-focal transfers 
-\begin_inset Formula $h\left(x^{\prime}\right)$
+ it already had with this partner.
+ Later versions could make the function more complex, for example by making
+ this dependent on some information about a partner's state 
+\begin_inset Formula $x^{\prime}$
+\end_inset
+
+ as well.
+ 
+\end_layout
+
+\begin_layout Standard
+As a result of the investment, the partner stands to gain a benefit of 
+\begin_inset Formula $b\left[g\left(x,\tau\right)\right]$
+\end_inset
+
+, while the focal pays a resource cost of 
+\begin_inset Formula $c\left[g\left(x,\tau\right)\right]$
 \end_inset
 
 .
- They then enjoy a payoff 
+ Following 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Killingback1999"
+literal "false"
+
+\end_inset
+
+, we assume 
+\begin_inset Formula $b\left[g\left(x,\tau\right)\right]>c\left[g\left(x,\tau\right)\right]$
+\end_inset
+
+ as this is a necessary condition for cooperation to evolve; if every individual
+ simply invests 
+\begin_inset Formula $g\left(x,\tau\right)>0$
+\end_inset
+
+ the fitness of an individual is lower than if it would have invested 
+\begin_inset Formula $g\left(x\right)=0$
+\end_inset
+
+.
+ The reproductive value 
+\begin_inset Formula $V_{t}\left(x,x^{\prime}\right)$
+\end_inset
+
+ of an individual with reserves 
+\begin_inset Formula $x$
+\end_inset
+
+ paired with a partner with reserves 
+\begin_inset Formula $x^{\prime}$
+\end_inset
+
+ at time 
+\begin_inset Formula $t$
+\end_inset
+
+ is then given by
 \begin_inset Formula 
 \begin{align*}
-W\left(x,x^{\prime}\right) & \equiv W\left(x+h\left(x_{\mathrm{p}}\right)-g\left(x\right),x_{\mathrm{p}}+g\left(x\right)-h\left(x_{\mathrm{p}}\right)\right),
+W\left(x,x^{\prime},\tau\right) & \equiv W\left(x+b\left[g\left(x^{\prime},\tau\right)\right]-c\left[g\left(x,\tau\right)\right],x^{\prime}+b\left[g\left(x,\tau\right)\right]-c\left[g\left(x^{\prime},\tau\right)\right],\tau\right),
 \end{align*}
 
 \end_inset
 
-where the first argument reflects the amount of resources that the focal
- has received and given away, while the second argument reflects the amount
- of resources the focal has received and given away.
+where the first and second arguments reflect the focal's and the partner's
+ reserves after one interaction respectively.
+ 
 \end_layout
 
 \begin_layout Standard
-We focus on different dismissal probabilities, for example based on raw
- resource levels after this round of interaction - 
-\begin_inset Formula $d\left(x+h\left(x^{\prime}\right),x^{\prime}+g\left(x\right)\right)$
-\end_inset
-
-, or simply based on the gifts 
-\begin_inset Formula $d\left(h\left(x^{\prime}\right),g\left(x\right)\right)$
+After each round, individuals have the opportunity to dismiss their partner
+ dependent on a dismissal probability 
+\begin_inset Formula $y$
 \end_inset
 
 .
- Let 
+ Here, the probability to dismiss one's partner could be a function of the
+ focal's resources 
+\begin_inset Formula $y\equiv y\left(x\right)$
+\end_inset
+
+, for example reflecting a scenario in which a large amount of resources
+ may make the focal more vs less likely to dismiss their partner.
+ .
+ Alternatively, it is a function of the number of times 
+\begin_inset Formula $\tau$
+\end_inset
+
+ the pair has interacted so far, which may be selectively favoured if a
+ partner's investment function decreases over time, or 
+\begin_inset Formula $\partial g^{2}/\partial x^{\prime}\partial\tau<0$
+\end_inset
+
+.
+ In more complex scenarios, we could have thresholds that depend on resources
+ invested in the partner over the last 
+\begin_inset Formula $0\leq k\leq\tau$
+\end_inset
+
+ timesteps, i.e., 
+\begin_inset Formula $y\left(\sum_{t_{i}=0}^{k}g\left(x,t_{i}\right)\right)$
+\end_inset
+
+.
+ This would reflect a case where the focal uses its information about previous
+ gifts to its partner to evaluate whether the partner privatizes those gifts
+ or uses them to reinvest in the cooperative endeavour.
+ Consequently, let 
+\begin_inset Formula $d\left(x,x^{\prime},\tau\right)$
+\end_inset
+
+reflect the probability that a pair with current resource levels 
+\begin_inset Formula $x$
+\end_inset
+
+, 
+\begin_inset Formula $x^{\prime}$
+\end_inset
+
+ breaks up after 
+\begin_inset Formula $\tau$
+\end_inset
+
+ time steps:
+\begin_inset Formula 
+\begin{align*}
+d\left(x,x^{\prime},\tau\right) & =\begin{cases}
+y\left(x,\tau\right)<g\left(x^{\prime},\tau\right)+\varepsilon & 1\\
+y\left(x,\tau\right)\geq g\left(x^{\prime},\tau\right)+\varepsilon & 0
+\end{cases}\\
+D\left(x,x^{\prime},\tau\right) & =1-\left(1-d\left(x,x^{\prime},\tau\right)\right)\left(1-d\left(x^{\prime},x,\tau\right)\right),
+\end{align*}
+
+\end_inset
+
+where the final line reflects the overal dismissal probability.
+\end_layout
+
+\begin_layout Standard
+Let 
 \begin_inset Formula $S(x)$
 \end_inset
 
@@ -174,12 +285,32 @@ We focus on different dismissal probabilities, for example based on raw
 \begin_inset Formula $M(x)$
 \end_inset
 
- the resource-dependentLet 
-\begin_inset Formula $D$
+ the resource-dependent mortality cost of the focal, with 
+\begin_inset Formula $\mathrm{d}M/\mathrm{d}x<0$
 \end_inset
 
-reflect the expected future payoff if the focal dismisses its co-player.
- We then have
+.
+ Following eq.
+ (A9) in 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "McNamara2008"
+literal "false"
+
+\end_inset
+
+, the fitness function is given by
+\begin_inset Formula 
+\begin{align*}
+W\left(x,x^{\prime\prime},0\right) & =U\left(x^{\prime\prime}\right)\left[1-M\left(x\right)\right]\left\{ D\left(x,x^{\prime},\tau\right)+\left[1-D\left(x,x^{\prime},\tau\right)\right]M\left(x^{\prime}\right)\right\} \left[W\left(x,x^{\prime},\tau\right)-S\left(x\right)\right]\\
+W\left(x,x^{\prime},\tau+1\right) & =\left[1-M\left(x\right)\right]\left[1-M\left(x^{\prime}\right)\right]\left[1-D\left(x,x^{\prime},\tau\right)\right]W\left(x,x^{\prime},\tau\right)
+\end{align*}
+
+\end_inset
+
+
+\backslash
+nt
 \begin_inset Formula 
 \begin{align*}
 D(x) & =\left[1-M\left(x\right)\right]\int_{-\infty}^{\infty}\left[W\left(x,x^{\prime}\right)-S(x)+\mathrm{max}\left(V\left(x\right),D(x)\right)\right],
