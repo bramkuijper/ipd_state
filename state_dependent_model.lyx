@@ -178,26 +178,28 @@ literal "false"
 \end_inset
 
 .
- The reproductive value 
-\begin_inset Formula $V_{t}\left(x,x^{\prime}\right)$
-\end_inset
-
- of an individual with reserves 
+ An individual who currently has reserves 
 \begin_inset Formula $x$
 \end_inset
 
- paired with a partner with reserves 
+ and is paired with a partner who currently has reserves 
 \begin_inset Formula $x^{\prime}$
 \end_inset
 
- at time 
-\begin_inset Formula $t$
+ has fitness 
+\begin_inset Formula $W\left(x,x^{\prime},\tau\right)$
 \end_inset
 
- is then given by
+ after 
+\begin_inset Formula $\tau$
+\end_inset
+
+ interactions.
+ Conditional upon the pair staying together, their payoff after the next
+ interaction is then
 \begin_inset Formula 
 \begin{align*}
-W\left(x,x^{\prime},\tau\right) & \equiv W\left(x+b\left[g\left(x^{\prime},\tau\right)\right]-c\left[g\left(x,\tau\right)\right],x^{\prime}+b\left[g\left(x,\tau\right)\right]-c\left[g\left(x^{\prime},\tau\right)\right],\tau\right),
+W\left(x_{\tau+1},x_{\tau+1}^{\prime},\tau+1\right) & \equiv W\left(x+b\left[g\left(x^{\prime},\tau\right)\right]-c\left[g\left(x,\tau\right)\right],x^{\prime}+b\left[g\left(x,\tau\right)\right]-c\left[g\left(x^{\prime},\tau\right)\right],\tau\right),
 \end{align*}
 
 \end_inset
@@ -249,34 +251,42 @@ After each round, individuals have the opportunity to dismiss their partner
 \begin_inset Formula $d\left(x,x^{\prime},\tau\right)$
 \end_inset
 
-reflect the probability that a pair with current resource levels 
+reflect the probability that an individual with resource level 
 \begin_inset Formula $x$
 \end_inset
 
-, 
+ dismisses its partner with resource level 
 \begin_inset Formula $x^{\prime}$
 \end_inset
 
- breaks up after 
+ after 
 \begin_inset Formula $\tau$
 \end_inset
 
- time steps:
+ time steps of interaction:
 \begin_inset Formula 
 \begin{align*}
 d\left(x,x^{\prime},\tau\right) & =\begin{cases}
 y\left(x,\tau\right)<g\left(x^{\prime},\tau\right)+\varepsilon & 1\\
 y\left(x,\tau\right)\geq g\left(x^{\prime},\tau\right)+\varepsilon & 0
-\end{cases}\\
-D\left(x,x^{\prime},\tau\right) & =1-\left(1-d\left(x,x^{\prime},\tau\right)\right)\left(1-d\left(x^{\prime},x,\tau\right)\right),
+\end{cases}.
 \end{align*}
 
 \end_inset
 
-where the final line reflects the overal dismissal probability.
-\end_layout
+The probability 
+\begin_inset Formula $D\left(x,x^{\prime},\tau\right)$
+\end_inset
 
-\begin_layout Standard
+ that a pair breaks up due to dismissal (either by the focal or by the partner)
+ is then given by
+\begin_inset Formula 
+\begin{align*}
+D\left(x,x^{\prime},\tau\right) & =1-\left[1-d\left(x,x^{\prime},\tau\right)\right]\left[1-d\left(x^{\prime},x,\tau\right)\right].
+\end{align*}
+
+\end_inset
+
 Let 
 \begin_inset Formula $S(x)$
 \end_inset
@@ -299,7 +309,11 @@ literal "false"
 
 \end_inset
 
-, the fitness function is given by
+, the fitness at time step 
+\begin_inset Formula $t+1$
+\end_inset
+
+ is given by 
 \begin_inset Formula 
 \begin{align*}
 W\left(x,x^{\prime\prime},0\right) & =U\left(x^{\prime\prime}\right)\left[1-M\left(x\right)\right]\left\{ D\left(x,x^{\prime},\tau\right)+\left[1-D\left(x,x^{\prime},\tau\right)\right]M\left(x^{\prime}\right)\right\} \left[W\left(x,x^{\prime},\tau\right)-S\left(x\right)\right]\\
@@ -308,20 +322,16 @@ W\left(x,x^{\prime},\tau+1\right) & =\left[1-M\left(x\right)\right]\left[1-M\lef
 
 \end_inset
 
-
-\backslash
-nt
+Let us try the forward calculation, as
 \begin_inset Formula 
 \begin{align*}
-D(x) & =\left[1-M\left(x\right)\right]\int_{-\infty}^{\infty}\left[W\left(x,x^{\prime}\right)-S(x)+\mathrm{max}\left(V\left(x\right),D(x)\right)\right],
+W\left(x,x^{\prime},\tau\right) & =\left[1-M\left(x\right)\right]\left\{ D\left(x,x^{\prime},\tau\right)+\left[1-D\left(x,x^{\prime},\tau\right)\right]M\left(x^{\prime}\right)\right\} \left[\sum U\left(x^{\prime\prime}\right)W\left(x+,x^{\prime\prime}\right)-S\left(x\right)\right]\\
+ & +\left[1-M\left(x\right)\right]\left[1-M\left(x^{\prime}\right)\right]\left[1-D\left(x,x^{\prime},\tau\right)\right]W\left(x,x^{\prime},\tau\right)
 \end{align*}
 
 \end_inset
 
 
-\end_layout
-
-\begin_layout Standard
 \begin_inset CommandInset bibtex
 LatexCommand bibtex
 btprint "btPrintCited"
