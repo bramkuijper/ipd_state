@@ -105,8 +105,19 @@ State-dependent choosiness & cooperation
 \end_layout
 
 \begin_layout Standard
-\align center
+At the moment, iterated cooperative games are rarely considering notions
+ of state.
+ Most ideas on state-dependence focus on different forms of an individual's
+ standing or reputation 
+\begin_inset CommandInset citation
+LatexCommand citep
+before "e.g.,"
+key "Leimar1997"
+literal "false"
 
+\end_inset
+
+, or similarly, an individual's 
 \end_layout
 
 \begin_layout Section
@@ -114,32 +125,76 @@ Cooperation, partner choice and resources: dynamic programming
 \end_layout
 
 \begin_layout Standard
-Let the current level of an individual's reserves be 
-\begin_inset Formula $x$
+Following 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "McNamara2008"
+literal "false"
+
+\end_inset
+
+, we consider a life cycle in which individuals pair up with randomly chosen
+ partner followed by the reciprocal exchange of gifts.
+ Each individual then produces offspring asexually, the number of which
+ is proportional to the amount of resources an individual has.
+ Subsequent to reproduction, individuals decide whether they want to dismiss
+ their partner, followed by survival, after which the cycle repeats.
+ 
+\end_layout
+
+\begin_layout Subsection
+Singles pair up
+\end_layout
+
+\begin_layout Standard
+Let the current level of an individual's reserves at time 
+\begin_inset Formula $t$
+\end_inset
+
+ be 
+\begin_inset Formula $x_{t}$
 \end_inset
 
 .
  A currently unpaired individual randomly pairs up with a partner in resource
  state 
-\begin_inset Formula $x^{\prime}$
+\begin_inset Formula $x_{t}^{\prime}$
+\end_inset
+
+, which has a frequency 
+\begin_inset Formula $p_{\mathrm{single}}\left(x_{t}^{\prime}\right)$
 \end_inset
 
 .
- Both individuals invest in each other dependent on their resources (similar
- to a continuous iterated prisoner's dilemma.
+ 
+\end_layout
+
+\begin_layout Subsection
+Individuals interact
+\end_layout
+
+\begin_layout Standard
+Both individuals invest in each other dependent on their resources.
  We assume that the focal transfers an investment of 
-\begin_inset Formula $g\left(x,\tau\right)$
+\begin_inset Formula $gq\left(x_{t},\tau\right)$
 \end_inset
 
-, which is allowed to depend both on the focal's reserves as well as on
- the number of interactions 
+, which is allowed to depend both on the focal's reserves 
+\begin_inset Formula $x_{t}$
+\end_inset
+
+ as well as on the number of interactions 
 \begin_inset Formula $\tau$
 \end_inset
 
- it already had with this partner.
- Later versions could make the function more complex, for example by making
- this dependent on some information about a partner's state 
-\begin_inset Formula $x^{\prime}$
+ (not including the current interaction) it already had with this partner.
+ Later versions could make the function more complex, for example by having
+ the investment 
+\begin_inset Formula $g\left(\cdot\right)$
+\end_inset
+
+ depend on information about a partner's state 
+\begin_inset Formula $x_{t}^{\prime}$
 \end_inset
 
  as well.
@@ -148,11 +203,11 @@ Let the current level of an individual's reserves be
 
 \begin_layout Standard
 As a result of the investment, the partner stands to gain a benefit of 
-\begin_inset Formula $b\left[g\left(x,\tau\right)\right]$
+\begin_inset Formula $b\left[g\left(x_{t},\tau\right)\right]$
 \end_inset
 
 , while the focal pays a resource cost of 
-\begin_inset Formula $c\left[g\left(x,\tau\right)\right]$
+\begin_inset Formula $c\left[g\left(x_{t},\tau\right)\right]$
 \end_inset
 
 .
@@ -165,173 +220,525 @@ literal "false"
 \end_inset
 
 , we assume 
-\begin_inset Formula $b\left[g\left(x,\tau\right)\right]>c\left[g\left(x,\tau\right)\right]$
+\begin_inset Formula $b\left[g\left(x_{t},\tau\right)\right]>c\left[g\left(x_{t},\tau\right)\right]$
 \end_inset
 
  as this is a necessary condition for cooperation to evolve; if every individual
  simply invests 
-\begin_inset Formula $g\left(x,\tau\right)>0$
+\begin_inset Formula $g\left(x_{t},\tau\right)>0$
 \end_inset
 
  the fitness of an individual is lower than if it would have invested 
-\begin_inset Formula $g\left(x\right)=0$
+\begin_inset Formula $g\left(x_{t}\right)=0$
 \end_inset
 
 .
- An individual who currently has reserves 
-\begin_inset Formula $x$
-\end_inset
-
- and is paired with a partner who currently has reserves 
-\begin_inset Formula $x^{\prime}$
-\end_inset
-
- has fitness 
-\begin_inset Formula $W\left(x,x^{\prime},\tau\right)$
-\end_inset
-
- after 
-\begin_inset Formula $\tau$
-\end_inset
-
- interactions.
- Conditional upon the pair staying together, their payoff after the next
- interaction is then
+ Consequently after the interaction, payoffs of focal and partner are given
+ by
 \begin_inset Formula 
-\begin{align*}
-W\left(x_{\tau+1},x_{\tau+1}^{\prime},\tau+1\right) & \equiv W\left(x+b\left[g\left(x^{\prime},\tau\right)\right]-c\left[g\left(x,\tau\right)\right],x^{\prime}+b\left[g\left(x,\tau\right)\right]-c\left[g\left(x^{\prime},\tau\right)\right],\tau\right),
-\end{align*}
+\begin{align}
+x_{t+1} & =x_{t}+b\left[g\left(x_{t}^{\prime},\tau\right)\right]-c\left[g\left(x_{t},\tau\right)\right]\label{eq:x_tplus1}\\
+x_{t+1}^{\prime} & =x_{t}^{\prime}+b\left[g\left(x_{t},\tau\right)\right]-c\left[g\left(x_{t}^{\prime},\tau\right)\right].\label{eq:xprime_tplus1}
+\end{align}
 
 \end_inset
 
-where the first and second arguments reflect the focal's and the partner's
- reserves after one interaction respectively.
+
+\end_layout
+
+\begin_layout Subsection
+Reproduction
+\end_layout
+
+\begin_layout Standard
+Subsequent to interacting, the focal then produces a number of offspring
  
+\begin_inset Formula $r\left(x_{t+1}\right)$
+\end_inset
+
+ as a function of its payoff that it has obtained after interacting with
+ its partner.
+\end_layout
+
+\begin_layout Subsection
+Partner dismissal
 \end_layout
 
 \begin_layout Standard
 After each round, individuals have the opportunity to dismiss their partner
- dependent on a dismissal probability 
+ dependent on a dismissal threshold 
 \begin_inset Formula $y$
 \end_inset
 
 .
- Here, the probability to dismiss one's partner could be a function of the
- focal's resources 
-\begin_inset Formula $y\equiv y\left(x\right)$
+ In simple scenarios, the dismissal threshold is a function of the focal's
+ resources 
+\begin_inset Formula $y\equiv y\left(x_{t+1}\right)$
 \end_inset
 
-, for example reflecting a scenario in which a large amount of resources
- may make the focal more vs less likely to dismiss their partner.
- .
- Alternatively, it is a function of the number of times 
-\begin_inset Formula $\tau$
+, to assess whether individuals with more reserves can afford the risk of
+ switching partners.
+ Moreover, the dismissal threshold could also be a function of the number
+ of times 
+\begin_inset Formula $\tau+1$
 \end_inset
 
- the pair has interacted so far, which may be selectively favoured if a
- partner's investment function decreases over time, or 
-\begin_inset Formula $\partial g^{2}/\partial x^{\prime}\partial\tau<0$
-\end_inset
-
-.
- In more complex scenarios, we could have thresholds that depend on resources
- invested in the partner over the last 
-\begin_inset Formula $0\leq k\leq\tau$
+ the pair has interacted so far, which is particularly relevant if investment
+ varies over time.
+ In more complex scenarios, thresholds could depend on resources invested
+ in the partner over the last 
+\begin_inset Formula $0\leq k\leq\tau+1$
 \end_inset
 
  timesteps, i.e., 
-\begin_inset Formula $y\left(\sum_{t_{i}=0}^{k}g\left(x,t_{i}\right)\right)$
+\begin_inset Formula $y\equiv y[\sum_{t_{i}=0}^{k}g(x_{t_{i}},t_{i})]$
 \end_inset
 
 .
- This would reflect a case where the focal uses its information about previous
- gifts to its partner to evaluate whether the partner privatizes those gifts
- or uses them to reinvest in the cooperative endeavour.
- Consequently, let 
-\begin_inset Formula $d\left(x,x^{\prime},\tau\right)$
+ This would reflect a case in which the focal uses its information about
+ previous gifts provided to its partner to evaluate whether the partner
+ privatizes those gifts or uses them to reinvest in the cooperative endeavour.
+ 
+\end_layout
+
+\begin_layout Standard
+Consequently, let 
+\begin_inset Formula $d(x_{t+1},x_{t+1}^{\prime},\tau+1)$
 \end_inset
 
-reflect the probability that an individual with resource level 
-\begin_inset Formula $x$
+ reflect the probability that an individual with resource level 
+\begin_inset Formula $x_{t+1}$
 \end_inset
 
  dismisses its partner with resource level 
-\begin_inset Formula $x^{\prime}$
+\begin_inset Formula $x_{t+1}^{\prime}$
 \end_inset
 
  after 
-\begin_inset Formula $\tau$
+\begin_inset Formula $\tau+1$
 \end_inset
 
- time steps of interaction:
+ interactions.
+ For a scenario in which the dismissal threshold depends both on the focal's
+ and partner's current resources 
+\begin_inset Formula $x_{t+1}$
+\end_inset
+
+ and 
+\begin_inset Formula $x_{t+1}^{\prime}$
+\end_inset
+
+ as well as on the number of interactions had so far (
+\begin_inset Formula $\tau+1$
+\end_inset
+
+), we have
 \begin_inset Formula 
 \begin{align*}
-d\left(x,x^{\prime},\tau\right) & =\begin{cases}
-y\left(x,\tau\right)<g\left(x^{\prime},\tau\right)+\varepsilon & 1\\
-y\left(x,\tau\right)\geq g\left(x^{\prime},\tau\right)+\varepsilon & 0
-\end{cases}.
+d\left(x_{t+1},x_{t+1}^{\prime},\tau+1\right) & =\begin{cases}
+y\left(x_{t+1},\tau+1\right)<g\left(x_{t+1}^{\prime},\tau+1\right)+\varepsilon & 1\\
+y\left(x_{t+1},\tau+1\right)\geq g\left(x_{t+1}^{\prime},\tau+1\right)+\varepsilon & 0
+\end{cases},
 \end{align*}
 
 \end_inset
 
-The probability 
-\begin_inset Formula $D\left(x,x^{\prime},\tau\right)$
+where 
+\begin_inset Formula $\varepsilon\sim\mathcal{N}(0,\sigma_{\varepsilon}^{2})$
 \end_inset
 
- that a pair breaks up due to dismissal (either by the focal or by the partner)
- is then given by
+ is an error term.
+ The overall probability 
+\begin_inset Formula $D\left(x_{t+1},x_{t+1}^{\prime},\tau+1\right)$
+\end_inset
+
+ that a pair breaks up due to dismissal by either partner is
 \begin_inset Formula 
 \begin{align*}
-D\left(x,x^{\prime},\tau\right) & =1-\left[1-d\left(x,x^{\prime},\tau\right)\right]\left[1-d\left(x^{\prime},x,\tau\right)\right].
+D\left(x_{t+1},x_{t+1}^{\prime},\tau+1\right) & =1-\left[1-d\left(x_{t+1},x_{t+1}^{\prime},\tau+1\right)\right]\left[1-d\left(x_{t+1}^{\prime},x_{t+1},\tau+1\right)\right].
 \end{align*}
 
 \end_inset
 
+
+\end_layout
+
+\begin_layout Subsection
+Fitness
+\end_layout
+
+\begin_layout Standard
 Let 
-\begin_inset Formula $S(x)$
+\begin_inset Formula $S(x_{t})$
 \end_inset
 
  reflect the resource-dependent cost of finding a new partner and 
-\begin_inset Formula $M(x)$
+\begin_inset Formula $M(x_{t})$
 \end_inset
 
  the resource-dependent mortality cost of the focal, with 
-\begin_inset Formula $\mathrm{d}M/\mathrm{d}x<0$
+\begin_inset Formula $\mathrm{d}M/\mathrm{d}x_{t}<0$
 \end_inset
 
 .
- Following eq.
- (A9) in 
-\begin_inset CommandInset citation
-LatexCommand citet
-key "McNamara2008"
-literal "false"
+ The fitness 
+\begin_inset Formula $W_{t}(x_{t},x_{t}^{\prime},\tau)$
+\end_inset
+
+ of an individual is then given by the following recursion
+\begin_inset Formula 
+\begin{align}
+W_{t}\left(x_{t},x_{t}^{\prime},\tau\right) & =r\left(x_{t+1}\right)M\left(x_{t+1}\right)\nonumber \\
+ & +\left[1-M\left(x_{t+1}\right)\right]\left\{ D\left(x_{t+1},x_{t+1}^{\prime},\tau+1\right)+\left[1-D\left(x_{t+1},x_{t+1}^{\prime},\tau+1\right)\right]M\left(x_{t+1}^{\prime}\right)\right\} \nonumber \\
+ & \times\left[r\left(x_{t+1}\right)+\sum_{x_{\mathrm{new}}^{\prime}}p_{\mathrm{single}}\left(x_{\mathrm{new}}^{\prime}\right)W_{t+1}\left(x_{t+1},x_{\mathrm{new}}^{\prime},0\right)-S\left(x_{t+1}\right)\right]\nonumber \\
+ & +\left[1-M\left(x_{t+1}\right)\right]\left[1-M\left(x_{t+1}^{\prime}\right)\right]\left[1-D\left(x_{t+1},x_{t+1}^{\prime},\tau+1\right)\right]\\
+ & \times\left[r\left(x_{t+1}\right)+W_{t+1}\left(x_{t+1},x_{t+1}^{\prime},\tau+1\right)\right].\label{eq:fitness_recursion}
+\end{align}
 
 \end_inset
 
-, the fitness at time step 
+Here, the first line reflects the case in which an individual dies after
+ producing offspring: first, the focal interacts with its partner, so that
+ its resource level is now 
+\begin_inset Formula $x_{t+1}$
+\end_inset
+
+ given by eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:x_tplus1"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+).
+ Next, after producing 
+\begin_inset Formula $r\left(x_{t+1}\right)$
+\end_inset
+
+ offspring it dies with probability 
+\begin_inset Formula $M\left(x_{t+1}\right)$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+The second and third lines reflect the case in which a currently paired
+ focal individual becomes single.
+ Again, the focal first interacts with its partner, so that its resource
+ level is now 
+\begin_inset Formula $x_{t+1}$
+\end_inset
+
+.
+ Next, it produces 
+\begin_inset Formula $r(x_{t+1})$
+\end_inset
+
+ offspring.
+ Following reproduction, the focal survives with probability 
+\begin_inset Formula $1-M(x_{t+1})$
+\end_inset
+
+, after which the focal becomes single because the pair either breaks up
+ with probability 
+\begin_inset Formula $D\left(x_{t+1},x_{t+1}^{\prime},\tau+1\right)$
+\end_inset
+
+, or the pair stays together with probabilty 
+\begin_inset Formula $1-D\left(x_{t+1},x_{t+1}^{\prime},\tau+1\right)$
+\end_inset
+
+ and the partner dies with probability 
+\begin_inset Formula $M(x_{t+1}^{\prime})$
+\end_inset
+
+.
+ Subsequently, the single focal pairs up with a randomly chosen new partner
+ with resource level 
+\begin_inset Formula $x_{\mathrm{new}}^{\prime}$
+\end_inset
+
+ at frequency 
+\begin_inset Formula $p_{\mathrm{single}}\left(x_{\mathrm{new}}^{\prime}\right)$
+\end_inset
+
+.
+ Its expected fitness value at time 
 \begin_inset Formula $t+1$
 \end_inset
 
- is given by 
-\begin_inset Formula 
-\begin{align*}
-W\left(x,x^{\prime\prime},0\right) & =U\left(x^{\prime\prime}\right)\left[1-M\left(x\right)\right]\left\{ D\left(x,x^{\prime},\tau\right)+\left[1-D\left(x,x^{\prime},\tau\right)\right]M\left(x^{\prime}\right)\right\} \left[W\left(x,x^{\prime},\tau\right)-S\left(x\right)\right]\\
-W\left(x,x^{\prime},\tau+1\right) & =\left[1-M\left(x\right)\right]\left[1-M\left(x^{\prime}\right)\right]\left[1-D\left(x,x^{\prime},\tau\right)\right]W\left(x,x^{\prime},\tau\right)
-\end{align*}
+ is then given by 
+\begin_inset Formula $W_{t+1}(x_{t+1},x_{\mathrm{new}}^{\prime},0)$
+\end_inset
+
+ denoting that the focal and its partner have resource levels 
+\begin_inset Formula $x_{t+1}$
+\end_inset
+
+ and 
+\begin_inset Formula $x_{\mathrm{new}}^{\prime}$
+\end_inset
+
+ and the 
+\begin_inset Formula $0$
+\end_inset
+
+ denotes they are yet to interact.
+ Finally, because the focal has had to find a new partner, we subtract 
+\begin_inset Formula $S(x_{t+1})$
+\end_inset
+
+ from its current fitness value.
+\end_layout
+
+\begin_layout Standard
+The final two lines reflect the case in which the currently paired focal
+ stays with its partner.
+ First, the focal interacts with its partner, so that its payoff is now
+ 
+\begin_inset Formula $x_{t+1}$
+\end_inset
+
+ as in eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:x_tplus1"
+plural "false"
+caps "false"
+noprefix "false"
 
 \end_inset
 
-Let us try the forward calculation, as
+).
+ Next, it produces 
+\begin_inset Formula $r(x_{t+1})$
+\end_inset
+
+ offspring.
+ Following reproduction, the focal and its partner survive with probability
+ 
+\begin_inset Formula $1-M(x_{t+1})$
+\end_inset
+
+ and 
+\begin_inset Formula $1-M(x_{t+1}^{\prime})$
+\end_inset
+
+ and stay together with probability 
+\begin_inset Formula $1-D\left(x_{t+1},x_{t+1}^{\prime},\tau+1\right)$
+\end_inset
+
+.
+ Expected future fitness is then given by 
+\begin_inset Formula $W_{t+1}\left(x_{t+1},x_{t+1}^{\prime},\tau+1\right)$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Subsection
+Updating the distribution of singles and pairs
+\end_layout
+
+\begin_layout Standard
+After every time step, the distribution of single individuals with resource
+ level 
+\begin_inset Formula $\chi_{t+1}$
+\end_inset
+
+ is given by
 \begin_inset Formula 
-\begin{align*}
-W\left(x,x^{\prime},\tau\right) & =\left[1-M\left(x\right)\right]\left\{ D\left(x,x^{\prime},\tau\right)+\left[1-D\left(x,x^{\prime},\tau\right)\right]M\left(x^{\prime}\right)\right\} \left[\sum U\left(x^{\prime\prime}\right)W\left(x+,x^{\prime\prime}\right)-S\left(x\right)\right]\\
- & +\left[1-M\left(x\right)\right]\left[1-M\left(x^{\prime}\right)\right]\left[1-D\left(x,x^{\prime},\tau\right)\right]W\left(x,x^{\prime},\tau\right)
-\end{align*}
+\begin{align}
+p_{\mathrm{single}}\left(\chi_{t+1}\right) & =\sum_{x_{t}}\sum_{x_{t}^{\prime}}P\left(x_{t},x_{t}^{\prime}\right)\left[\frac{1}{2}r\left(x_{t}\right)+\frac{1}{2}r\left(x_{t}^{\prime}\right)\right]f\left(\chi_{t}\right)\nonumber \\
+ & +\sum_{\chi_{t}^{\prime}}P\left(\chi_{t},\chi_{t}^{\prime}\right)D\left(\chi_{t},\chi_{t}^{\prime}\right)\left[1-M\left(\chi_{t}\right)\right]\nonumber \\
+ & +\sum_{\chi_{t}^{\prime}}P\left(\chi_{t},\chi_{t}^{\prime}\right)\left[1-D\left(\chi_{t},\chi_{t}^{\prime}\right)\right]M\left(\chi_{t}^{\prime}\right)\left[1-M\left(\chi_{t}\right)\right],\label{eq:p_single}
+\end{align}
+
+\end_inset
+
+where the first line reflects the production of newborns with resource level
+ 
+\begin_inset Formula $\chi_{t}$
+\end_inset
+
+ by pairs having resource levels 
+\begin_inset Formula $x_{t}$
+\end_inset
+
+ and 
+\begin_inset Formula $x_{t}^{\prime}$
+\end_inset
+
+ at frequency 
+\begin_inset Formula $P\left(x_{t},x_{t}^{\prime}\right)$
+\end_inset
+
+.
+ We assume that that there is no inheritance of resources from parent to
+ offspring and offspring resource levels are sampled from a discretized
+ normal distribution 
+\begin_inset Formula $f\left(\chi_{t}\right)$
+\end_inset
+
+ with mean 
+\begin_inset Formula $\mu_{x}$
+\end_inset
+
+ and variance 
+\begin_inset Formula $\sigma_{x}^{2}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+The second line reflects the contribution to singles by pairs with resource
+ levels 
+\begin_inset Formula $\chi_{t}$
+\end_inset
+
+ and 
+\begin_inset Formula $\chi_{t}^{\prime}$
+\end_inset
+
+ that have a frequency 
+\begin_inset Formula $P\left(\chi_{t},\chi_{t}^{\prime}\right)$
+\end_inset
+
+ and who have split up with probability 
+\begin_inset Formula $D\left(\chi_{t},\chi^{\prime}\right)$
+\end_inset
+
+.
+ Here, 
+\begin_inset Formula $1-M\left(\chi_{t}\right)$
+\end_inset
+
+ reflects the survival probability of the now single, focal individual with
+ resource level 
+\begin_inset Formula $\chi_{t}$
+\end_inset
+
+.
+ The third line reflects the contribution to singles by pairs who have not
+ split up, but in which the partner dies, while the focal survives.
+\end_layout
+
+\begin_layout Standard
+After every time step, the distribution of paired individuals with resource
+ levels 
+\begin_inset Formula $\chi_{t+1}$
+\end_inset
+
+ and 
+\begin_inset Formula $\chi_{t+1}^{\prime}$
+\end_inset
+
+ is given by
+\begin_inset Formula 
+\begin{align}
+P\left(\chi_{t+1},\chi_{t+1}^{\prime}\right) & =\left[1-M\left(\chi_{t}\right)\right]\left[1-M\left(\chi_{t}^{\prime}\right)\right]\left[1-D\left(\chi_{t},\chi_{t}^{\prime}\right)\right]P\left(\chi_{t},\chi_{t}^{\prime}\right)+p_{\mathrm{single}}\left(\chi_{t}\right)p_{\mathrm{single}}\left(\chi_{t}^{\prime}\right).\label{eq:p_pair}
+\end{align}
 
 \end_inset
 
 
+\end_layout
+
+\begin_layout Subsection
+Effect of parental resources
+\end_layout
+
+\begin_layout Standard
+A central aspect of this question explores the role of variation in parental
+ resources in future social behaviour.
+ In initial cases, we do not even need a explicit resource transmission
+ function.
+ Rather we can simply look at individuals who start off with very little
+ resources and individuals who start off with a lot of resources.
+ However, in the actual work for the grant we can then look at a parental
+ transmission function, where a parent's resources (which result from their
+ social interactions) 
+\end_layout
+
+\begin_layout Standard
+To this end, we modulate the fitness function in eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:fitness_recursion"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+), and have
+\begin_inset Formula 
+\begin{align}
+W_{t}\left(x_{t},x_{t}^{\prime},\tau\right) & =M\left(x_{t+1}\right)r\left(x_{t+1}\right)\sum_{x_{\mathrm{new}}^{\prime}}p_{\mathrm{single}}\left(x_{\mathrm{new}}^{\prime}\right)W_{t+1}\left(x_{t+1},x_{\mathrm{new}}^{\prime}\right)\nonumber \\
+ & +\left[1-M\left(x_{t+1}\right)\right]\left\{ D\left(x_{t+1},x_{t+1}^{\prime},\tau+1\right)+\left[1-D\left(x_{t+1},x_{t+1}^{\prime},\tau+1\right)\right]M\left(x_{t+1}^{\prime}\right)\right\} \nonumber \\
+ & \times\left\{ r\left(x_{t+1}\right)\left[\sum_{x_{\mathrm{new}}^{\prime}}p_{\mathrm{single}}\left(x_{\mathrm{new}}^{\prime}\right)W_{t+1}\left(x_{t+1},x_{\mathrm{new}}^{\prime},0\right)-S\left(x_{t+1}\right)\right]\right.\nonumber \\
+ & +\left.\sum_{x_{\mathrm{new}}^{\prime}}p_{\mathrm{single}}\left(x_{\mathrm{new}}^{\prime}\right)W_{t+1}\left(x_{t+1},x_{\mathrm{new}}^{\prime},0\right)-S\left(x_{t+1}\right)\right\} \nonumber \\
+ & +\left[1-M\left(x_{t+1}\right)\right]\left[1-M\left(x_{t+1}^{\prime}\right)\right]\left[1-D\left(x_{t+1},x_{t+1}^{\prime},\tau+1\right)\right]\nonumber \\
+ & \times\left\{ r\left(x_{t+1}\right)\sum_{x_{\mathrm{new}}^{\prime}}p_{\mathrm{single}}\left(x_{\mathrm{new}}^{\prime}\right)W_{t+1}\left(x_{t+1},x_{\mathrm{new}}^{\prime},0\right)+W_{t+1}\left(x_{t+1},x_{t+1}^{\prime},\tau+1\right)\right\} ,\label{eq:parental_resources:fitness_recursion}
+\end{align}
+
+\end_inset
+
+which is largely the same as eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:fitness_recursion"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+), except that reproduction of offspring 
+\begin_inset Formula $r\left(x_{t}\right)$
+\end_inset
+
+ by a focal individual with resource level 
+\begin_inset Formula $x_{t}$
+\end_inset
+
+ is now weighted by the fitness of that offspring, which is 
+\begin_inset Formula $\sum_{x_{\mathrm{new}}^{\prime}}p_{\mathrm{single}}\left(x_{\mathrm{new}}^{\prime}\right)W_{t+1}\left(x_{t+1},x_{\mathrm{new}}^{\prime}\right)$
+\end_inset
+
+.
+ Note that an offspring's fitness is a function of that individual being
+ paired to a partner with resource level 
+\begin_inset Formula $x_{\mathrm{new}}^{\prime}$
+\end_inset
+
+.
+ In lines 2-4 we again have the case that individuals split up either due
+ to mortality of partner or dismissal, where individulas reproduce fitness-weigh
+ted offspring and also find a new partner themselves.
+ Finally, the last two lines again reflect the pair staying together and
+ surviving, producing offspring that are now fitness weighted and the fitness
+ of the focal individual 
+\begin_inset Formula $W_{t+1}\left(x_{t+1},x_{t+1}^{\prime},\tau+1\right)$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
 \begin_inset CommandInset bibtex
 LatexCommand bibtex
 btprint "btPrintCited"
