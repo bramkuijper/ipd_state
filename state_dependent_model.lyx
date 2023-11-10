@@ -6,10 +6,10 @@
 \origin unavailable
 \textclass article
 \begin_preamble
-\usepackage{heuristica}
-\usepackage[heuristica,vvarbb,bigdelims]{newtxmath}
-\usepackage[T1]{fontenc}
-\renewcommand*\oldstylenums[1]{\textosf{#1}}
+%\usepackage{heuristica}
+%\usepackage[heuristica,vvarbb,bigdelims]{newtxmath}
+%\usepackage[T1]{fontenc}
+%\renewcommand*\oldstylenums[1]{\textosf{#1}}
 \usepackage{color}
 \definecolor{slateblue}{RGB}{22,88,143}
 \usepackage{doi}
@@ -101,23 +101,70 @@
 \begin_body
 
 \begin_layout Title
-State-dependent choosiness & cooperation
+How do reserves affect choosiness and cooperation?
 \end_layout
 
 \begin_layout Standard
-At the moment, iterated cooperative games are rarely considering notions
- of state.
- Most ideas on state-dependence focus on different forms of an individual's
- standing or reputation 
+Despite a vast amount of work on the evolution of cooperation in repeated
+ interactions 
 \begin_inset CommandInset citation
 LatexCommand citep
 before "e.g.,"
-key "Leimar1997"
+key "Axelrod1984,Boyd1989,Nowak1992,Leimar1997,Sigmund2010"
 literal "false"
 
 \end_inset
 
-, or similarly, an individual's 
+, surprisingly few studies have considered how an individual's state impacts
+ decisions about who to interact with and how much to invest in such interaction
+s.
+ So far, the few studies who considered the impact of state have exclusively
+ focused on an individual's standing or reputation 
+\begin_inset CommandInset citation
+LatexCommand citep
+before "e.g.,"
+key "Leimar1997,Barta2010"
+literal "false"
+
+\end_inset
+
+, yet how an individual's level of resources affects decision making about
+ partners and investment is hitherto poorly understood.
+ To assess this, we extend a previous model on the coevolution of choosiness
+ and cooperation by 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "McNamara2008"
+literal "false"
+
+\end_inset
+
+ and consider how decisions about partner choice and investment are influenced
+ by an individual's reserves and, importantly, how the former decisions
+ feed back on these reserves in turn.
+ 
+\end_layout
+
+\begin_layout Paragraph
+Aims of the model
+\end_layout
+
+\begin_layout Itemize
+Assess how a focal individual's choice of partner (as measured by the probabilit
+y to dismiss the partner) depends on different cues, such as its own reserves,
+ information about its partner's reserves, the time that it has interacted
+ with this partner or on the availability of other potential partners.
+\end_layout
+
+\begin_layout Itemize
+Assess how an individual's investment in a cooperative interaction depends
+ on these aforementioned cues.
+\end_layout
+
+\begin_layout Itemize
+Assess feedbacks between partner choice and investment: which cues in partner
+ choice result in a larger investment than others? What temporal patterns
+ of cooperation can be observed?
 \end_layout
 
 \begin_layout Section
@@ -136,7 +183,7 @@ literal "false"
 , we consider a life cycle in which individuals pair up with randomly chosen
  partner followed by the reciprocal exchange of gifts.
  Each individual then produces offspring asexually, the number of which
- is proportional to the amount of resources an individual has.
+ is proportional to the amount of resources an individual currently has.
  Subsequent to reproduction, individuals decide whether they want to dismiss
  their partner, followed by survival, after which the cycle repeats.
  
@@ -176,7 +223,7 @@ Individuals interact
 \begin_layout Standard
 Both individuals invest in each other dependent on their resources.
  We assume that the focal transfers an investment of 
-\begin_inset Formula $gq\left(x_{t},\tau\right)$
+\begin_inset Formula $g\left(x_{t},\tau\right)$
 \end_inset
 
 , which is allowed to depend both on the focal's reserves 
@@ -198,11 +245,8 @@ Both individuals invest in each other dependent on their resources.
 \end_inset
 
  as well.
+ As a result of the investment, the partner stands to gain a benefit of
  
-\end_layout
-
-\begin_layout Standard
-As a result of the investment, the partner stands to gain a benefit of 
 \begin_inset Formula $b\left[g\left(x_{t},\tau\right)\right]$
 \end_inset
 
@@ -258,6 +302,13 @@ Subsequent to interacting, the focal then produces a number of offspring
 
  as a function of its payoff that it has obtained after interacting with
  its partner.
+ An offspring's state is assumed to be independent of its parent, but later
+ we will also consider a version of the model in which an offspring's fitness
+ is dependent on the resources available to its parent 
+\begin_inset Formula $x_{t+1}$
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Subsection
@@ -391,7 +442,7 @@ Let
 W_{t}\left(x_{t},x_{t}^{\prime},\tau\right) & =r\left(x_{t+1}\right)M\left(x_{t+1}\right)\nonumber \\
  & +\left[1-M\left(x_{t+1}\right)\right]\left\{ D\left(x_{t+1},x_{t+1}^{\prime},\tau+1\right)+\left[1-D\left(x_{t+1},x_{t+1}^{\prime},\tau+1\right)\right]M\left(x_{t+1}^{\prime}\right)\right\} \nonumber \\
  & \times\left[r\left(x_{t+1}\right)+\sum_{x_{\mathrm{new}}^{\prime}}p_{\mathrm{single}}\left(x_{\mathrm{new}}^{\prime}\right)W_{t+1}\left(x_{t+1},x_{\mathrm{new}}^{\prime},0\right)-S\left(x_{t+1}\right)\right]\nonumber \\
- & +\left[1-M\left(x_{t+1}\right)\right]\left[1-M\left(x_{t+1}^{\prime}\right)\right]\left[1-D\left(x_{t+1},x_{t+1}^{\prime},\tau+1\right)\right]\\
+ & +\left[1-M\left(x_{t+1}\right)\right]\left[1-M\left(x_{t+1}^{\prime}\right)\right]\left[1-D\left(x_{t+1},x_{t+1}^{\prime},\tau+1\right)\right]\nonumber \\
  & \times\left[r\left(x_{t+1}\right)+W_{t+1}\left(x_{t+1},x_{t+1}^{\prime},\tau+1\right)\right].\label{eq:fitness_recursion}
 \end{align}
 
@@ -468,8 +519,7 @@ The second and third lines reflect the case in which a currently paired
 \begin_inset Formula $p_{\mathrm{single}}\left(x_{\mathrm{new}}^{\prime}\right)$
 \end_inset
 
-.
- Its expected fitness value at time 
+ and its expected fitness value at time 
 \begin_inset Formula $t+1$
 \end_inset
 
@@ -490,6 +540,8 @@ The second and third lines reflect the case in which a currently paired
 \end_inset
 
  denotes they are yet to interact.
+ Hence, future fitness is then the expectation of fitness over this distribution
+ of new partners.
  Finally, because the focal has had to find a new partner, we subtract 
 \begin_inset Formula $S(x_{t+1})$
 \end_inset
@@ -655,7 +707,7 @@ P\left(\chi_{t+1},\chi_{t+1}^{\prime}\right) & =\left[1-M\left(\chi_{t}\right)\r
 \end_layout
 
 \begin_layout Subsection
-Effect of parental resources
+Transfer of parental resources to offspring
 \end_layout
 
 \begin_layout Standard
