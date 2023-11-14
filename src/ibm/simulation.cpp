@@ -64,7 +64,6 @@ void Simulation::run()
 // pair up single individuals
 void Simulation::pair_up()
 {
-    check_state();
     // all singles pair up
     // we just do this by shuffling the list and then individuals
     // in indices 0, 1 interact. 
@@ -72,10 +71,9 @@ void Simulation::pair_up()
     // final index in case of unevenness has bad luck and does not interact 
     std::shuffle(singles.begin(), singles.end(),rng_r);
 
-    check_state();
 } // pair_up()
 
-// then calculate payoff according to a pd scenario
+// calculate payoff according to a pd scenario
 double Simulation::payoff_pd(double const x, double const xprime)
 {
     double xsum = x + xprime;
@@ -96,6 +94,7 @@ double Simulation::payoff_pd(double const x, double const xprime)
     return(B - C);
 }
 
+// calculate payoff according to a snowdrift scenario
 double Simulation::payoff_snowdrift(double const x, double const xprime)
 {
     double retval = (x + xprime)/(1.0 + x + xprime) - 0.8 * (x + x * x);
@@ -121,15 +120,16 @@ double Simulation::payoff(double const x, double const xprime)
 // have individuals interact and calculate payoffs
 void Simulation::interact()
 {
+    // aux variables for investment 
+    // by focal and partner
     double x1, x2;
 
     // first have new pairs interact
-    // loop over each pair, simply by loooping over two singles at a time
+    // loop over each pair, simply by looping 
+    // over two singles at a time
     for (int new_pair_idx = 0; 
             new_pair_idx < singles.size(); new_pair_idx += 2)
     {
-        check_state();
-    
         // end of the stack 
         if (new_pair_idx + 1 >= singles.size())
         {
@@ -172,7 +172,6 @@ void Simulation::interact()
 
     for (int pair_idx = 0; pair_idx < paired.size(); pair_idx += 2)
     {
-        check_state();
         assert(std::fabs(paired[pair_idx].resources) <= params.max_resources);
         assert(std::fabs(paired[pair_idx + 1].resources) <= params.max_resources);
 
@@ -217,11 +216,9 @@ int Simulation::calculate_mortalities()
 // produce offspring dependent on payoffs
 void Simulation::reproduce()
 {
-    check_state();
     // remove offspring from previous time step
     offspring.clear();
 
-    check_state();
     // make distribution of resources of all singles and paireds
     std::vector <double> resources;
 
@@ -234,13 +231,10 @@ void Simulation::reproduce()
     
     for (int pair_idx = 0; pair_idx < paired.size(); ++pair_idx)
     {
-//        std::cout << time_step << " " << pair_idx << " " << paired.size() << " " << paired[pair_idx].resources << std::endl;
         assert(std::fabs(paired[pair_idx].resources) <= params.max_resources);
         resources.push_back(paired[pair_idx].resources);
     }
     
-    check_state();
-
     // make a distribution of all individuals 
     // according to their resources
     std::discrete_distribution<int> resource_distribution(
@@ -251,7 +245,6 @@ void Simulation::reproduce()
 
     int parent_idx;
 
-    check_state();
     for (int offspring_idx = 0; 
             offspring_idx < number_mortalities; ++offspring_idx)
     {
@@ -319,7 +312,6 @@ void Simulation::reproduce()
             }
         }
     } // end for offspring idx
-    check_state();
 } // end Simulation::reproduce()
 
 void Simulation::dismiss_partner()
@@ -333,9 +325,6 @@ void Simulation::dismiss_partner()
     {
         return;
     }
-
-    check_state();
-//    int i = 0;
 
     //  loop through newly formed pairs (which are still stored in the singles vector)
     for (std::vector<Individual>::iterator pair_iter = singles.begin();
@@ -382,7 +371,6 @@ void Simulation::dismiss_partner()
         }
     }
     
-    check_state();
 } // end void Simulation::dismiss_partner
 
 // Bounds checking on all the individual's states
@@ -409,8 +397,6 @@ void Simulation::check_state()
 // mortality events as many as there are offspring
 void Simulation::mortality()
 {
-    check_state();
-
     // aux variab
     double prob_single;
 
@@ -479,12 +465,9 @@ void Simulation::mortality()
         } // end else not single
     } // end for offspring size
 
-    check_state();
-
     // add offspring to the stack of singles
     singles.insert(singles.end(), offspring.begin(), offspring.end());
 
-    check_state();
 } // end Simulation::mortality()
   
 void Simulation::write_data()
