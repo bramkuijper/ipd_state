@@ -24,6 +24,7 @@ Simulation::Simulation(Parameters const &params) :
 {
     // initialize resources into all the singles
     init_resources_singles();
+
 } // end constructor
 
 void Simulation::init_resources_singles()
@@ -40,6 +41,14 @@ void Simulation::run()
     write_parameters();
     write_data_headers();
 
+    std::ofstream whole_pop_file;
+    
+    if (params.whole_population)
+    {
+        whole_pop_file.open(params.file_base_name + "_whole_pop");
+        whole_pop_header(whole_pop_file);
+    }
+
     for (time_step = 0; time_step <= params.max_time; ++time_step)
     {
         pair_up();
@@ -52,10 +61,15 @@ void Simulation::run()
 
         mortality();
 
-
         if (time_step % params.data_interval == 0)
         {
             write_data();
+        }
+
+        if (params.whole_population &&
+                time_step % params.data_interval_whole_pop == 0)
+        {
+            write_whole_population(whole_pop_file);
         }
     }
 
@@ -469,7 +483,43 @@ void Simulation::mortality()
     singles.insert(singles.end(), offspring.begin(), offspring.end());
 
 } // end Simulation::mortality()
-  
+ 
+void Simulation::whole_pop_header(std::ofstream &whole_pop_file)
+{
+    whole_pop_file << "time;type;x;y;xp;yp;resources" << std::endl;
+
+}
+// print whole population to file
+// later we can move this into a histogram
+void Simulation::write_whole_population(std::ofstream &whole_pop_file)
+{
+    // print the singles
+    for (auto it = singles.begin();
+            it != singles.end();
+            ++it)
+    {
+        whole_pop_file << time_step << ";single;"
+            << it->x << ";"
+            << it->y << ";"
+            << it->xp << ";"
+            << it->yp << ";"
+            << it->resources << std::endl;
+    }
+    
+    // print the paired ones 
+    for (auto it = paired.begin();
+            it != paired.end();
+            ++it)
+    {
+        whole_pop_file << time_step << ";paired;"
+            << it->x << ";"
+            << it->y << ";"
+            << it->xp << ";"
+            << it->yp << ";"
+            << it->resources << std::endl;
+    }
+}
+
 void Simulation::write_data()
 {
     double mean_x = 0.0;

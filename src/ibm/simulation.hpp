@@ -65,6 +65,12 @@ class Simulation
 
         void check_state();
 
+        // write all individuals to a file
+        void write_whole_population(std::ofstream &file);
+
+        // give that file headers
+        void whole_pop_header(std::ofstream &file);
+
     public:
         Simulation(Parameters const &params);
 

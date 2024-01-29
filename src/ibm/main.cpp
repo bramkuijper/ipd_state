@@ -16,6 +16,7 @@ int main(int argc, char **argv)
     params.mortality_prob = std::stod(argv[9]);
     params.resource_variation = std::stod(argv[10]);
     params.file_base_name = argv[11];
+    params.whole_population = std::stoi(argv[12]);
 
     Simulation sim(params);
 

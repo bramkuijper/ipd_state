@@ -25,6 +25,8 @@ nrep = 5
 
 counter = 0
 
+whole_pop = 0
+
 basename = "data_ipd_"
 current_date = dt.datetime.now()
 basename += current_date.strftime("%Y%m%d_%H%M%S%f")
@@ -42,6 +44,8 @@ for rep_i in range(0,nrep):
                                         f" {init_y_i} {mu_y_i} {mu_xp} {mu_yp}" +\
                                         f" {cooperation_type_i} {startup_cost_i}" +\
                                         f" {mortality_prob_i} {resource_variation_i}" +\
-                                        f" {basename}_{counter}")
+                                        f" {basename}_{counter}" +\
+                                        f" {whole_pop}"
+                                        )
 
                                 counter += 1
