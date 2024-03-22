@@ -25,6 +25,8 @@ nrep = 5
 
 counter = 0
 
+whole_pop = 0
+
 basename = "data_ipd_"
 current_date = dt.datetime.now()
 basename += current_date.strftime("%Y%m%d_%H%M%S%f")
@@ -32,18 +34,17 @@ basename += current_date.strftime("%Y%m%d_%H%M%S%f")
 for rep_i in range(0,nrep):
     for init_x_i in init_x:
         for init_y_i in init_y:
-            for mu_xp_i in mu_xp:
-                for mu_yp_i in mu_yp:
-                    for mu_y_i in mu_y:
-                        for startup_cost_i in startup_cost:
-                            for cooperation_type_i in cooperation_type:
-                                for mortality_prob_i in mortality_prob:
-                                    for resource_variation_i in resource_variation:
-                                        print(f"{exe_name}" +\
-                                                f" {max_time} {init_x_i}" +\
-                                                f" {init_y_i} {mu_y_i} {mu_xp_i} {mu_yp_i}" +\
-                                                f" {cooperation_type_i} {startup_cost_i}" +\
-                                                f" {mortality_prob_i} {resource_variation_i}" +\
-                                                f" {basename}_{counter}")
-
+            for mu_y_i in mu_y:
+                for startup_cost_i in startup_cost:
+                    for cooperation_type_i in cooperation_type:
+                        for mortality_prob_i in mortality_prob:
+                            for resource_variation_i in resource_variation:
+                                print(f"{exe_name}" +\
+                                        f" {max_time} {init_x_i}" +\
+                                        f" {init_y_i} {mu_y_i} {mu_xp} {mu_yp}" +\
+                                        f" {cooperation_type_i} {startup_cost_i}" +\
+                                        f" {mortality_prob_i} {resource_variation_i}" +\
+                                        f" {basename}_{counter}" +\
+                                        f" {whole_pop}"
+                                        )
                                         counter += 1

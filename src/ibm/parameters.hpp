@@ -41,10 +41,13 @@ class Parameters
         double cost_of_reproduction = 2;
 
         int data_interval = 1;
+        int data_interval_whole_pop = 100;
 
         std::string file_base_name = "data_ipd";
 
         double max_resources = 100.0;
+
+        bool whole_population{false};
 };
 
 #endif
