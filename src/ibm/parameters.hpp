@@ -5,8 +5,8 @@
 
 enum game_type
 {
-    prisoners_dilemma,
-    snowdrift_game
+    prisoners_dilemma=0,
+    snowdrift_game=1
 };
 
 class Parameters

@@ -13,6 +13,17 @@ make.var.name <- function(vars) {
     return(gsub(pattern="[_0-1]",replacement="",x=var1))
 }
 
+
+# use tidyverse's sym() to transform strings to symbols 
+transform.sym  <- function(x) 
+{
+    if (!is.null(x))
+    {
+       sym(x)
+    }
+}
+
+
 find.params <- function(filename) {
 
     f <- readLines(filename)
@@ -21,13 +32,14 @@ find.params <- function(filename) {
 
     for (line_i in seq.rev)
     {
-        if (length(grep("^\\d",f[[line_i]])) > 0)
+        if (length(grep("^mu_x;",f[[line_i]])) > 0)
         {
             return(line_i)
         }
     }
 }
 
+# finds the start of the statistics part of the file
 find.first.line <- function(filename) {
     f <- readLines(filename)
 
@@ -74,8 +86,6 @@ plots_json <- paste0('[
     ]'
 )
 
-#file.name <- "sim_asr_20230509_101417900895_0"
-
 # if the file name not provided raise error
 if (!exists("file.name"))
 {
@@ -107,11 +117,14 @@ if (nrow(data.tibble) > 50000)
     data.tibble <- data.tibble[data.tibble$time %% 10 == 0,]
 }
 
+params <- NULL
+
 # get the parameters
 data.tibble.params <- read_delim(file=file.name
         ,delim=";"
-        ,skip=param.line
+        ,skip=param.line - 1
         ,col_names=c("name","value")
+        ,n_max=firstline - param.line 
         )
 
 # transpose the tibble with the parameters
@@ -135,26 +148,45 @@ for (plot_struct_idx in 1:plot.structure.l)
     # as this is a list and hence highly structured
     # hence, try to flatten it
     yvar <- unlist(plot.structure[[plot_struct_idx]]$yvar)
-
+    
     if (length(yvar) > 1)
     {
         yvar_name <- make.var.name(yvar)
         yvar_values <- paste0(yvar_name,"_values")
 
-        sub.data <- pivot_longer(data=data.tibble
-                ,cols=yvar
+        sub.data <- data.tibble %>% pivot_longer(
+                cols=any_of(yvar)
                 ,names_to=yvar_name
                 ,values_to=yvar_values)
+        
+
+        # aes arguments for the ggplot() call
+        plot_args <- lapply(X=list(
+                        x=plot.structure[[plot_struct_idx]]$xvar
+                        ,y=yvar_values),
+                FUN=transform.sym)
+
+        # aes arguments for the geom_line() call
+        line_args <- lapply(X=list(
+                        colour=yvar_name),
+                FUN=transform.sym)
 
         plot.list[[plot.list.idx]] <- ggplot(data=sub.data
-                ,mapping=aes_string(x=plot.structure[[plot_struct_idx]]$xvar
-                        ,y=yvar_values)) + geom_line(mapping=aes_string(colour=yvar_name))
+                ,mapping=aes(!!!plot_args)) + 
+                    geom_line(mapping=aes(!!!line_args))
+                            
     } else {
-        plot.list[[plot.list.idx]] <- ggplot(data=data.tibble
-                ,mapping=aes_string(x=plot.structure[[plot_struct_idx]]$xvar
-                        ,y=plot.structure[[plot_struct_idx]]$yvar)) + geom_line()
-    }
 
+        # aes arguments for the ggplot() call
+        plot_args <- lapply(X=list(
+                        x=plot.structure[[plot_struct_idx]]$xvar
+                        ,y=plot.structure[[plot_struct_idx]]$yvar
+                        ),
+                FUN=transform.sym)
+
+        plot.list[[plot.list.idx]] <- ggplot(data=data.tibble
+                ,mapping=aes(!!!plot_args)) + geom_line()
+	}
     # add ylim
     if ("ylim" %in% names(plot.structure[[plot_struct_idx]]))
     {
@@ -171,12 +203,23 @@ for (plot_struct_idx in 1:plot.structure.l)
 
 plot.title <- ""
 
+names.print <- c("startup_cost","mort","dismiss_error","game_type")
+
+for (name in names.print)
+{
+    if (!(name %in% names(params) ))
+    {
+        params[name] <- NA
+    }
+}
+
 if (exists("params")  && "startup_cost" %in% names(params))
 {
     plot.title <- paste0(
                 "startup cost: ",params["startup_cost"],
                 ", mort: ",params["mortality_prob"],
-                ", dismiss error: ",params["dismiss_error"]
+                ", dismiss error: ",params["dismiss_error"],
+                ", game: ",params["game_type"]
                 )
 }
 
@@ -184,6 +227,8 @@ if (exists("params")  && "startup_cost" %in% names(params))
 wrap_plots(plot.list,ncol=1) + plot_annotation(
         title=plot.title)
 
-file.name <- paste0("graph_",basename(file.name),".pdf")
+file.name <- paste0("graph_",basename(file.name),".png")
 
 ggsave(file.name,height= 3 * plot.structure.l)
+
+problems()

@@ -144,6 +144,16 @@ void Simulation::interact()
         // gift by individual 2: baseline (x) + xp * (individual 2's resources)
         x2 = singles[new_pair_idx + 1].x + singles[new_pair_idx + 1].xp * singles[new_pair_idx + 1].resources;
 
+        if (x1 < 0)
+        {
+            x1 = 0;
+        }
+
+        if (x2 < 0)
+        {
+            x2 = 0;
+        }
+
         // now calculate the payoff according to PD logic
         singles[new_pair_idx].resources += 
             payoff(x1,x2) - params.startup_cost;
@@ -180,6 +190,16 @@ void Simulation::interact()
 
         x2 = paired[pair_idx + 1].x + 
             paired[pair_idx + 1].xp * paired[pair_idx + 1].resources;
+        
+        if (x1 < 0)
+        {
+            x1 = 0;
+        }
+
+        if (x2 < 0)
+        {
+            x2 = 0;
+        }
         
         paired[pair_idx].resources += payoff(x1,x2);
         
